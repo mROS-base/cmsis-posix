@@ -2,35 +2,12 @@
 #define _AUTOSAR_OS_EXTEND_COMMON_H_
 
 
-#ifdef OS_AUTOSAR
-#include "kernel/kernel_impl.h"
-#include "Os.h"
-#include "Os_Lcfg.h"
-#include "queue.h"
-#include "sysmod/syslog.h"
-
-
-typedef boolean bool_t;
-#ifndef true
-#define true TRUE
-#endif
-#ifndef false
-#define false FALSE
-#endif
-
-#else
-#include "t_stddef.h"
 #include "cmsis_impl.h"
-#include "kernel.h"
-#ifndef TOPPERS_CB_TYPE_ONLY
-#include "kernel_cfg.h"
-#endif
-#include "sil.h"
 
 typedef int StatusType;
 typedef int AlarmType;
-typedef int TaskType;
-typedef int* TaskRefType;
+typedef int* TaskType;
+typedef TaskType* TaskRefType;
 typedef int AlarmType;
 typedef int EventMaskType;
 
@@ -44,6 +21,5 @@ typedef int EventMaskType;
 
 #define TASK(func)	void TaskMain ## func (intptr_t exinf)
 #define ALARMCALLBACK(func) void AlarmManin ## func (intptr_t exinf)
-#endif /* OS_AUTOSAR */
 
 #endif /* _AUTOSAR_OS_EXTEND_COMMON_H_ */

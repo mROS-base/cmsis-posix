@@ -3,7 +3,13 @@
 
 #ifdef CMSIS_LOG_DISABLE_DEBUG
 #else
+#ifdef OS_POSIX
+#include <stdio.h>
+//#define syslog(flg, ...) printf(__VA_ARGS__)
+#define syslog(flg, ...) 
+#else
 #include "t_syslog.h"
+#endif
 #endif
 
 /*

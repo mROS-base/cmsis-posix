@@ -2,11 +2,12 @@
 # Makefile definition for autosar_os_ext stack
 #
 
-AUTOSAR_OS_EXT_DIR := .
-MIDDLESDIR := .
+AUTOSAR_OS_EXT_DIR := ../src
+MIDDLESDIR := ..
 
 INCLUDES += -I$(AUTOSAR_OS_EXT_DIR)/api
 INCLUDES += -I$(AUTOSAR_OS_EXT_DIR)/config
+INCLUDES += -I$(AUTOSAR_OS_EXT_DIR)/core
 INCLUDES += -I$(MIDDLESDIR)/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2
 
 APPLDIR	+= $(AUTOSAR_OS_EXT_DIR)/api
@@ -29,6 +30,6 @@ APPL_COBJS += cmsis_autosar_os_task_sync.o
 APPL_COBJS += cmsis_autosar_os_time.o
 
 APPL_COBJS += autosar_os.o
-APPL_COBJS += autosar_os_ext_asp3_config.o
-APPL_COBJS += autosar_os_ext_asp3_sys_config.o
-APPL_COBJS += autosar_os_ext_sys_config.o
+#APPL_COBJS += autosar_os_ext_asp3_config.o
+#APPL_COBJS += autosar_os_ext_asp3_sys_config.o
+#APPL_COBJS += autosar_os_ext_sys_config.o
