@@ -2,7 +2,8 @@
 # Makefile definition for autosar_os_ext stack
 #
 
-AUTOSAR_OS_EXT_DIR := ${ROOTDIR}/cmsis-asp3/src
+AUTOSAR_OS_EXT_DIR := .
+MIDDLESDIR := .
 
 INCLUDES += -I$(AUTOSAR_OS_EXT_DIR)/api
 INCLUDES += -I$(AUTOSAR_OS_EXT_DIR)/config
