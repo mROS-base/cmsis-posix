@@ -5,8 +5,10 @@ int main(int argc, const char* argv[])
 {
 	osKernelStart();
 
-	sleep(1);
+	CMSIS_IMPL_INFO("before");
+	osStatus_t err = osDelay(2);
+	CMSIS_IMPL_INFO("after: %d", err);
 	uint32_t count = osKernelGetTickCount();
-	CMSIS_IMPL_INFO("main: %d", count);
+	CMSIS_IMPL_INFO("main: %u", count);
 	return 0;
 }

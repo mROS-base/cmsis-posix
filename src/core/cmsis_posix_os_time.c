@@ -6,9 +6,9 @@ static uint64_t posix_os_activated_time64;
 static uint64_t posix_os_get_current_time(void)
 {
 	struct timespec tmo;
-	clock_gettime(CLOCK_MONOTONIC, &tmo);
+	clock_gettime(CLOCK_REALTIME, &tmo);
 	uint64_t sec = tmo.tv_sec;
-	uint64_t msec = (tmo.tv_nsec / TIMESPEC_MSEC);
+	uint64_t msec = (tmo.tv_nsec / (TIMESPEC_MSEC * TIMESPEC_MSEC));
 	uint64_t ticks = (sec * TIMESPEC_MSEC) + msec;
 	return ticks;
 }

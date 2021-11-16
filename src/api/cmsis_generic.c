@@ -3,7 +3,7 @@
 
 osStatus_t osDelay(uint32_t ticks)
 {
-    if (CurrentContextIsISR()) {
+    if (CurrentContextIsISR() == true) {
         return osErrorISR;
     }
     if (ticks == 0) {

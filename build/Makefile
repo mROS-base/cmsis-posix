@@ -52,4 +52,4 @@ clean:
 .SUFFIXES:      .c .o
 
 .c.o:	$<
-	$(GCC) -O0 -c $(CFLAGS) $(DFLAGS) $<
+	$(GCC) -O0 -g -c $(CFLAGS) $(DFLAGS) $<

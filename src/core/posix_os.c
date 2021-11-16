@@ -3,5 +3,5 @@
 
 bool_t CurrentContextIsISR(void)
 {
-  return true;//TODO
+  return false;//TODO
 }

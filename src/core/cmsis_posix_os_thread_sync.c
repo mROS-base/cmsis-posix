@@ -44,16 +44,23 @@ void PosixOsThreadSyncUnlock(void)
 
 static void add_timespec(struct timespec* tmop, uint32_t timeout)
 {
-    clock_gettime(CLOCK_MONOTONIC, tmop);
-    tmop->tv_sec += (timeout / TIMESPEC_MSEC);
-    tmop->tv_nsec += ((timeout % TIMESPEC_MSEC) * TIMESPEC_MSEC);
+    uint64_t timeout64 = timeout;
+    clock_gettime(CLOCK_REALTIME, tmop);
+    //printf("tv_sec=%ld\n", tmop->tv_sec);
+    //printf("tv_nsec=%ld\n", tmop->tv_nsec);
+    tmop->tv_nsec += (timeout64 * TIMESPEC_MSEC * TIMESPEC_MSEC);
+    //printf("add:tv_nsec=%ld\n", tmop->tv_nsec);
     if (tmop->tv_nsec >= TIMESPEC_NANOSEC) {
         struct timespec over_tmo;
         over_tmo.tv_sec = (tmop->tv_nsec / TIMESPEC_NANOSEC);
         over_tmo.tv_nsec = (over_tmo.tv_sec * TIMESPEC_NANOSEC);
+        //printf("over_tmo:tv_sec=%ld\n", over_tmo.tv_sec);
+        //printf("over_tmo:tv_nsec=%ld\n", over_tmo.tv_nsec);
         tmop->tv_sec += over_tmo.tv_sec;
         tmop->tv_nsec -= over_tmo.tv_nsec;
     }
+    //printf("tv_sec=%ld\n", tmop->tv_sec);
+    //printf("tv_nsec=%ld\n", tmop->tv_nsec);
     return;
 }
 

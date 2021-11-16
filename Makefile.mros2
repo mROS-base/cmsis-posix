@@ -29,6 +29,3 @@ APPL_COBJS += cmsis_posix_os_thread_sync.o
 APPL_COBJS += cmsis_posix_os_time.o
 
 APPL_COBJS += posix_os.o
-#APPL_COBJS += posix_os_ext_asp3_config.o
-#APPL_COBJS += posix_os_ext_asp3_sys_config.o
-#APPL_COBJS += posix_os_ext_sys_config.o
