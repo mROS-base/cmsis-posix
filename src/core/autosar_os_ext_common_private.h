@@ -5,7 +5,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include "autosar_os_ext_common.h"
+#include "cmsis_impl.h"
 
 extern bool_t CurrentContextIsISR(void);
 

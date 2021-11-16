@@ -1,5 +1,4 @@
 #include "cmsis_os.h"
-#include "autosar_os_ext_common.h"
 #include "autosar_os_ext_common_private.h"
 
 typedef struct {

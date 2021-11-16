@@ -21,7 +21,6 @@ APPL_COBJS += cmsis_message_queue.o
 APPL_COBJS += cmsis_mutexes.o
 APPL_COBJS += cmsis_semaphores.o
 APPL_COBJS += cmsis_thread.o
-APPL_COBJS += cmsis_syscall.o
 
 APPL_COBJS += cmsis_autosar_os_memory.o
 APPL_COBJS += cmsis_autosar_os_queue.o

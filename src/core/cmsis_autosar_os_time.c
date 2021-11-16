@@ -1,5 +1,4 @@
 #include "cmsis_autosar_os_time.h"
-#include "autosar_os_ext_common.h"
 #include "autosar_os_ext_common_private.h"
 
 static uint64_t posix_os_activated_time64;

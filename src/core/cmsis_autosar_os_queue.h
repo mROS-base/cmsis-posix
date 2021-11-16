@@ -1,7 +1,7 @@
 #ifndef _CMSIS_AUTOSAR_OS_QUEUE_H_
 #define _CMSIS_AUTOSAR_OS_QUEUE_H_
 
-#include "autosar_os_ext_common.h"
+#include "autosar_os_ext_common_private.h"
 
 typedef struct {
   uint16_t	count;
