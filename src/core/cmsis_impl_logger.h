@@ -5,8 +5,13 @@
 #else
 #ifdef OS_POSIX
 #include <stdio.h>
-#define syslog(flg, ...) printf(__VA_ARGS__)
-//#define syslog(flg, ...) 
+#define syslog(flg, ...) \
+	do {	\
+		uint32_t _tick = osKernelGetTickCount(); \
+		printf("%s : %08u.%03u : ", #flg, (_tick / 1000), (_tick % 1000)); \
+		printf(__VA_ARGS__);	\
+		printf("\n");	\
+	} while (0)
 #else
 #include "t_syslog.h"
 #endif

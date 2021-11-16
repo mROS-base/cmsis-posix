@@ -5,7 +5,9 @@
 osStatus_t osKernelStart(void)
 {
 	PosixOsThreadSyncInit();
-	return PosixOsTimerInit();
+	(void)PosixOsTimerInit();
+	CMSIS_IMPL_INFO("osKernelStart");
+	return osOK;
 }
 
 uint32_t osKernelGetTickCount(void)
