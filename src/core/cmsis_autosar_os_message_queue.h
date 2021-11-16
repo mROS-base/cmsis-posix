@@ -3,6 +3,25 @@
 
 #include "cmsis_autosar_os_queue.h"
 #include "cmsis_autosar_os_types.h"
+#include "cmsis_os.h"
+
+/***********************************************
+ *
+ * MESSAGE QUEUE
+ *
+ ***********************************************/
+#define MESSAGE_QUEUE_ENTRY_ALIGNMENT_SIZE	4U
+#define MESSAGE_QUEUE_ENTRY_ALIGNED_SIZE(size)	\
+	(	\
+			(	\
+				(	\
+						(size) + (MESSAGE_QUEUE_ENTRY_ALIGNMENT_SIZE - 1)	\
+				)	\
+				/ MESSAGE_QUEUE_ENTRY_ALIGNMENT_SIZE	\
+			)	\
+			* MESSAGE_QUEUE_ENTRY_ALIGNMENT_SIZE	\
+	)
+
 
 #define AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO		0xDEAFBEAD
 typedef struct {
@@ -36,10 +55,10 @@ typedef struct {
   void 	 					*entries_datap;
 } PosixOsMessageQueueConfigType;
 extern PosixOsMessageQueueType *PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType *config);
-extern StatusType PosixOsMessageQueueDelete(PosixOsMessageQueueType *qh);
+extern osStatus_t PosixOsMessageQueueDelete(PosixOsMessageQueueType *qh);
 
-extern StatusType PosixOsMessageQueueGet(PosixOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout);
-extern StatusType PosixOsMessageQueuePut(PosixOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
+extern osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout);
+extern osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
 extern bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType *qh);
 
 #endif /* _CMSIS_AUTOSAR_OS_MESSAGE_QUEUE_H_ */

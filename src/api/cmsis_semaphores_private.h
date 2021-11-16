@@ -11,7 +11,7 @@ typedef struct {
   PosixOsQueueHeadType	waiting;
 } CmsisSemType;
 
-extern osStatus_t osSemaphoreAcquire_nolock(CmsisSemType *semp, uint32_t timeout, TaskType taskID);
+extern osStatus_t osSemaphoreAcquire_nolock(CmsisSemType *semp, uint32_t timeout);
 extern osStatus_t osSemaphoreRelease_nolock(CmsisSemType *semp);
 
 

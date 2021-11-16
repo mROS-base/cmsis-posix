@@ -7,8 +7,8 @@
 
 extern osStatus_t PosixOsThreadSyncWait(uint32_t timeout);
 
-extern void *PosixOsTaskSyncWait(PosixOsQueueHeadType *waiting_queue, uint32_t timeout, StatusType *ercdp, TaskType taskID);
-extern bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType *waiting_queue, void *data, StatusType ercd);
+extern void *PosixOsTaskSyncWait(PosixOsQueueHeadType *waiting_queue, uint32_t timeout, osStatus_t*ercdp);
+extern bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType *waiting_queue, void *data, osStatus_t ercd);
 
 extern void PosixOsThreadSyncInit(void);
 extern void PosixOsThreadSyncLock(void);

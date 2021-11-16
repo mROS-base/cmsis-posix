@@ -4,10 +4,9 @@
 
 typedef struct {
     CMSIS_IMPL_QUEUE	queue;
-    TaskType			taskID;
     uint32_t			timeout;
     uint32_t			stick;
-    StatusType			ercd;
+    osStatus_t			ercd;
     pthread_cond_t      cond;
 } PosixOsTaskWaitInfoType;
 
@@ -17,9 +16,7 @@ typedef struct {
     PosixOsTaskWaitInfoType		winfo;
 } PosixOsTaskWaitQueueEntryType;
 
-static void PosixOsTaskWakeup(CMSIS_IMPL_QUEUE* entry, void* arg);
-static bool_t PosixOsTaskHasTargetId(CMSIS_IMPL_QUEUE* entry, void* arg);
-static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout, TaskType taskID);
+static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout);
 
 
 static PosixOsQueueHeadInitializer(autosar_os_task_sync_queue);
@@ -79,13 +76,13 @@ osStatus_t PosixOsThreadSyncWait(uint32_t timeout)
     return ret;
 }
 
-void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout, StatusType* ercdp, TaskType taskID)
+void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout, osStatus_t* ercdp)
 {
     PosixOsTaskWaitQueueEntryType wait_info;
     struct timespec tmo;
 
     wait_info.data = NULL;
-    PosixOsTaskSyncWaitInfoInit(&wait_info.winfo, timeout, taskID);
+    PosixOsTaskSyncWaitInfoInit(&wait_info.winfo, timeout);
 
     if (waiting_queue != NULL) {
         PosixOsQueueHeadAddTail(waiting_queue, &wait_info.wait_queue);
@@ -99,7 +96,7 @@ void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout,
     }
     if (ercdp != NULL) {
         if ((err != 0) && (err != ETIMEDOUT)) {
-            *ercdp = E_OS_ID; //TODO
+            *ercdp = osError; //TODO
         }
         else {
             *ercdp = wait_info.winfo.ercd;
@@ -107,15 +104,13 @@ void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout,
     }
     return wait_info.data;
 }
-bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, StatusType ercd)
+bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, osStatus_t ercd)
 {
-    PosixOsTaskWaitQueueEntryType* wait_infop = (PosixOsTaskWaitQueueEntryType*)waiting_queue->entries;
+    PosixOsTaskWaitQueueEntryType *wait_infop = (PosixOsTaskWaitQueueEntryType*)PosixOsQueueHeadRemoveFirst(waiting_queue);
     if (wait_infop != NULL) {
-        PosixOsQueueHeadInitializer(dq);
         wait_infop->data = data;
         wait_infop->winfo.ercd = ercd;
-        PosixOsQueueHeadConditionalRemove(&autosar_os_task_sync_queue, &dq, PosixOsTaskHasTargetId, &wait_infop->winfo.taskID);
-        PosixOsQueueHeadDoAction(&dq, PosixOsTaskWakeup, &ercd);
+        pthread_cond_signal(&wait_infop->winfo.cond);
         return true;
     }
     else {
@@ -124,34 +119,13 @@ bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void
 }
 
 
-static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout, TaskType taskID)
+static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout)
 {
     winfop->timeout = timeout;
     winfop->stick = PosixOsTimeGetTickCount();
     cmsis_impl_queue_initialize(&winfop->queue);
-    winfop->taskID = taskID;
-    winfop->ercd = E_OK;
+    winfop->ercd = osOK;
     pthread_cond_init(&winfop->cond, NULL);
     return;
 }
 
-
-
-static void PosixOsTaskWakeup(CMSIS_IMPL_QUEUE* entry, void* arg)
-{
-    PosixOsTaskWaitInfoType* winfop = (PosixOsTaskWaitInfoType*)entry;
-    StatusType ercd = *((StatusType*)arg);
-    winfop->ercd = ercd;
-    pthread_cond_signal(&winfop->cond);
-    return;
-}
-
-static bool_t PosixOsTaskHasTargetId(CMSIS_IMPL_QUEUE* entry, void* arg)
-{
-    TaskType taskID = *((TaskType*)arg);
-    PosixOsTaskWaitInfoType* winfop = (PosixOsTaskWaitInfoType*)entry;
-    if (winfop->taskID == taskID) {
-        return true;
-    }
-    return false;
-}

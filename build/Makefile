@@ -47,7 +47,7 @@ all: $(APPL_COBJS)
 	gcc -o mros-proc $(APPL_COBJS) $(LIBS)
 
 clean:
-	rm -f *.o
+	rm -f *.o mros-proc
 
 .SUFFIXES:      .c .o
 

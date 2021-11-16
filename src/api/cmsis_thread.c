@@ -1,6 +1,5 @@
 #include "cmsis_os.h"
 #include "autosar_os_ext_common.h"
-#include "autosar_os_ext_sys_config.h"
 #include "autosar_os_ext_common_private.h"
 
 typedef struct {
@@ -40,7 +39,7 @@ osStatus_t osThreadTerminate(osThreadId_t thread_id)
         return osErrorISR;
     }
     pthread_exit(NULL);
-    return E_OK;
+    return osOK;
 }
 
 /*

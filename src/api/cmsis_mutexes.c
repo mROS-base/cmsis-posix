@@ -2,10 +2,11 @@
 #include "cmsis_autosar_os_memory.h"
 #include "cmsis_semaphores_private.h"
 #include "autosar_os_ext_common_private.h"
+#include "cmsis_autosar_os_task_sync.h"
 
 #define AUTOSAR_OSMUTEX_HEAD_MAGICNO		0xDEADEEEB
 typedef struct {
-    TaskType			owner;
+    pthread_t			owner;
     uint32_t			count;
     uint32_t			magicno;
     osSemaphoreId_t* sem;
@@ -44,9 +45,8 @@ osMutexId_t osMutexNew(const osMutexAttr_t* attr)
 osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout)
 {
     CmsisMutexType* mutex;
-    TaskType taskID;
+    pthread_t thread_id;
     osStatus_t err = osOK;
-    StatusType ercd;
     bool_t is_ctx_isr = CurrentContextIsISR();
 
     if (is_ctx_isr) {
@@ -61,31 +61,26 @@ osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    ercd = GetTaskID(&taskID);
-    if (ercd != E_OK) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d GetTaskID() ercd =%d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
-        return osErrorResource;
-    }
-    SuspendOSInterrupts();
-    if ((mutex->is_recursive) && (mutex->count > 0) && (mutex->owner == taskID)) {
+    thread_id = pthread_self();
+    PosixOsThreadSyncLock();
+    if ((mutex->is_recursive) && (mutex->count > 0) && (mutex->owner == thread_id)) {
         mutex->count++;
     }
     else {
-        err = osSemaphoreAcquire_nolock((CmsisSemType*)mutex->sem, timeout, taskID);
+        err = osSemaphoreAcquire_nolock((CmsisSemType*)mutex->sem, timeout);
         if (err == osOK) {
-            mutex->owner = taskID;
+            mutex->owner = thread_id;
             mutex->count = 1;
         }
     }
-    ResumeOSInterrupts();
+    PosixOsThreadSyncUnlock();
     return err;
 }
 
 osStatus_t osMutexRelease(osMutexId_t mutex_id)
 {
     CmsisMutexType* mutex;
-    TaskType taskID;
-    StatusType ercd;
+    pthread_t thread_id;
     osStatus_t err = osOK;
     bool_t is_ctx_isr = CurrentContextIsISR();
 
@@ -101,13 +96,9 @@ osStatus_t osMutexRelease(osMutexId_t mutex_id)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    ercd = GetTaskID(&taskID);
-    if (ercd != E_OK) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d GetTaskID() ercd =%d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
-        return osErrorResource;
-    }
-    SuspendOSInterrupts();
-    if (mutex->owner == taskID) {
+    thread_id = pthread_self();
+    PosixOsThreadSyncLock();
+    if (mutex->owner == thread_id) {
         if ((mutex->is_recursive) && (mutex->count > 1)) {
             mutex->count--;
         }
@@ -122,7 +113,7 @@ osStatus_t osMutexRelease(osMutexId_t mutex_id)
     else {
         err = osErrorResource;
     }
-    ResumeOSInterrupts();
+    PosixOsThreadSyncUnlock();
     return err;
 }
 osStatus_t osMutexDelete(osMutexId_t mutex_id)
@@ -142,7 +133,7 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    SuspendOSInterrupts();
+    PosixOsThreadSyncLock();
     if (mutex->count == 0) {
         err = osSemaphoreDelete(mutex->sem);
         if (err == osOK) {
@@ -153,7 +144,7 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
     else {
         err = osErrorResource;
     }
-    ResumeOSInterrupts();
+    PosixOsThreadSyncUnlock();
     return err;
 }
 
