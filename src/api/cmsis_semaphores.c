@@ -22,7 +22,7 @@ osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const
     }
     semp->count = initial_count;
     semp->max_count = max_count;
-    semp->magicno = AUTOSAR_OSSEM_HEAD_MAGICNO;
+    semp->magicno = POSIX_OSSEM_HEAD_MAGICNO;
     PosixOsQueueHeadInit(&semp->waiting);
     return (osSemaphoreId_t)semp;
 }
@@ -38,7 +38,7 @@ osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphore_id, uint32_t timeout)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
-    if (semp->magicno != AUTOSAR_OSSEM_HEAD_MAGICNO) {
+    if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
         return osErrorParameter;
     }
     if (is_ctx_isr) {
@@ -62,7 +62,7 @@ osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
-    if (semp->magicno != AUTOSAR_OSSEM_HEAD_MAGICNO) {
+    if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
         return osErrorParameter;
     }
     PosixOsThreadSyncLock();
@@ -83,7 +83,7 @@ osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
-    if (semp->magicno != AUTOSAR_OSSEM_HEAD_MAGICNO) {
+    if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, semp->magicno);
         return osErrorParameter;
     }
@@ -113,7 +113,7 @@ osStatus_t osSemaphoreAcquire_nolock(CmsisSemType* semp, uint32_t timeout)
         }
         else {
             if (timeout == osWaitForever) {
-                timeout = AUTOSAR_OS_TASK_SYNC_WAIT_FOREVER;
+                timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
             }
             (void)PosixOsTaskSyncWait(&semp->waiting, timeout, &ercd);
             if (ercd != osOK) {
@@ -165,7 +165,7 @@ int32_t osSemaphoreWait(osSemaphoreId semaphore_id, uint32_t millisec)
         return -1;
     }
     semp = (CmsisSemType*)semaphore_id;
-    if (semp->magicno != AUTOSAR_OSSEM_HEAD_MAGICNO) {
+    if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
         return -1;
     }
     PosixOsThreadSyncLock();

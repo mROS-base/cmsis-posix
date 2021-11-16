@@ -1,5 +1,5 @@
-#ifndef _CMSIS_AUTOSAR_OS_TASK_SYNC_H_
-#define _CMSIS_AUTOSAR_OS_TASK_SYNC_H_
+#ifndef _CMSIS_POSIX_OS_TASK_SYNC_H_
+#define _CMSIS_POSIX_OS_TASK_SYNC_H_
 
 #include "cmsis_posix_os_queue.h"
 #include "cmsis_posix_os_types.h"
@@ -14,4 +14,4 @@ extern void PosixOsThreadSyncInit(void);
 extern void PosixOsThreadSyncLock(void);
 extern void PosixOsThreadSyncUnlock(void);
 
-#endif /* _CMSIS_AUTOSAR_OS_TASK_SYNC_H_ */
+#endif /* _CMSIS_POSIX_OS_TASK_SYNC_H_ */

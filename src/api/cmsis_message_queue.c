@@ -92,7 +92,7 @@ osStatus_t osMessageQueueGet(
     }
     else {
         if (timeout == osWaitForever) {
-            arg_timeout = AUTOSAR_OS_TASK_SYNC_WAIT_FOREVER;
+            arg_timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
         }
         err = osErrorTimeout;
     }
@@ -154,7 +154,7 @@ osStatus_t osMessageQueuePut(
     }
     else {
         if (timeout == osWaitForever) {
-            arg_timeout = AUTOSAR_OS_TASK_SYNC_WAIT_FOREVER;
+            arg_timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
         }
         err = osErrorTimeout;
     }

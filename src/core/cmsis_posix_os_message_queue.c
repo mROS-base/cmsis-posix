@@ -25,7 +25,7 @@ PosixOsMessageQueueType* PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType
     qh = (PosixOsMessageQueueType*)top;
     qh->entry_size = config->entry_size;
     qh->prealloc_num = config->prealloc_num;
-    qh->magicno = AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO;
+    qh->magicno = POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO;
     PosixOsQueueHeadInit(&qh->free);
     PosixOsQueueHeadInit(&qh->used);
     PosixOsQueueHeadInit(&qh->getter_waiting);
@@ -54,7 +54,7 @@ osStatus_t PosixOsMessageQueueDelete(PosixOsMessageQueueType* qh)
     if (qh == NULL) {
         return osErrorParameter;
     }
-    else if (qh->magicno != AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
+    else if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
         return osErrorParameter;
     }
     qh->magicno = 0;
@@ -67,7 +67,7 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
     osStatus_t ercd = osOK;
     PosixOsMessageQueueEntryType* entry = NULL;
 
-    if (qh->magicno != AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
+    if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
         return osErrorParameter;
     }
@@ -95,7 +95,7 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
 }
 bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType* qh)
 {
-    return (qh->magicno == AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO);
+    return (qh->magicno == POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO);
 }
 
 osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType* qh, const void* msg_ptr, uint8_t msg_prio, uint32_t timeout)
@@ -103,7 +103,7 @@ osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType* qh, const void* msg_p
     osStatus_t ercd = osOK;
     PosixOsMessageQueueEntryType* entry = NULL;
 
-    if (qh->magicno != AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
+    if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
         return osErrorParameter;
     }

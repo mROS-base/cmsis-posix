@@ -1,5 +1,5 @@
-#ifndef _CMSIS_AUTOSAR_OS_QUEUE_H_
-#define _CMSIS_AUTOSAR_OS_QUEUE_H_
+#ifndef _CMSIS_POSIX_OS_QUEUE_H_
+#define _CMSIS_POSIX_OS_QUEUE_H_
 
 #include "posix_os_ext_common_private.h"
 
@@ -22,4 +22,4 @@ extern void PosixOsQueueHeadRemoveEntry(PosixOsQueueHeadType *headp, CMSIS_IMPL_
 extern void PosixOsQueueHeadConditionalRemove(PosixOsQueueHeadType *srcq, PosixOsQueueHeadType *dstq, bool_t (*cond_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg);
 extern void PosixOsQueueHeadDoAction(PosixOsQueueHeadType *headp, void (*act_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg);
 
-#endif /* _CMSIS_AUTOSAR_OS_QUEUE_H_ */
+#endif /* _CMSIS_POSIX_OS_QUEUE_H_ */

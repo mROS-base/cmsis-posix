@@ -1,5 +1,5 @@
-#ifndef _CMSIS_AUTOSAR_OS_MESSAGE_QUEUE_H_
-#define _CMSIS_AUTOSAR_OS_MESSAGE_QUEUE_H_
+#ifndef _CMSIS_POSIX_OS_MESSAGE_QUEUE_H_
+#define _CMSIS_POSIX_OS_MESSAGE_QUEUE_H_
 
 #include "cmsis_posix_os_queue.h"
 #include "cmsis_posix_os_types.h"
@@ -23,7 +23,7 @@
 	)
 
 
-#define AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO		0xDEAFBEAD
+#define POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO		0xDEAFBEAD
 typedef struct {
   uint16_t			prealloc_num;
   uint16_t			entry_size;
@@ -61,4 +61,4 @@ extern osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType *qh, void *msg_
 extern osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
 extern bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType *qh);
 
-#endif /* _CMSIS_AUTOSAR_OS_MESSAGE_QUEUE_H_ */
+#endif /* _CMSIS_POSIX_OS_MESSAGE_QUEUE_H_ */
