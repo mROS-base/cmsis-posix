@@ -46,6 +46,7 @@ APPL_COBJS += main.o
 APPL_COBJS += cmsis_thread_test.o
 APPL_COBJS += cmsis_generic_test.o
 APPL_COBJS += cmsis_kernel_test.o
+APPL_COBJS += cmsis_message_queue_test.o
 APPL_COBJS += autosar_os_ext_testfw.o
 
 all: $(APPL_COBJS)

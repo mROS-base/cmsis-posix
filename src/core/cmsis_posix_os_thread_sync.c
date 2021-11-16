@@ -92,12 +92,14 @@ void* PosixOsThreadSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeou
 
     if (waiting_queue != NULL) {
         PosixOsQueueHeadAddTail(waiting_queue, &wait_info.wait_queue);
+        //printf("ADD:%p:waiting_queue:count=%d\n", &wait_info, waiting_queue->count);
     }
 
     add_timespec(&tmo, timeout);
     int err = pthread_cond_timedwait(&wait_info.winfo.cond, &posix_os_mutex, &tmo);
     if (waiting_queue != NULL) {
         PosixOsQueueHeadRemoveEntry(waiting_queue, &wait_info.wait_queue);
+        //printf("REMOVE:%p:waiting_queue:count=%d\n", &wait_info, waiting_queue->count);
     }
     if (ercdp != NULL) {
         if ((err != 0) && (err != ETIMEDOUT)) {
@@ -111,7 +113,8 @@ void* PosixOsThreadSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeou
 }
 bool_t PosixOsThreadSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, osStatus_t ercd)
 {
-    PosixOsTaskWaitQueueEntryType *wait_infop = (PosixOsTaskWaitQueueEntryType*)PosixOsQueueHeadRemoveFirst(waiting_queue);
+    PosixOsTaskWaitQueueEntryType *wait_infop = (PosixOsTaskWaitQueueEntryType*)(waiting_queue->entries);
+    //printf("PosixOsThreadSyncWakeupFirstEntry:count=%d wakeup:%p\n", waiting_queue->count, wait_infop);
     if (wait_infop != NULL) {
         wait_infop->data = data;
         wait_infop->winfo.ercd = ercd;

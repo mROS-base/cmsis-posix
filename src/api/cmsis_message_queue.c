@@ -49,11 +49,11 @@ osStatus_t osMessageQueueDelete(osMessageQueueId_t mq_id)
         return osErrorParameter;
     }
     PosixOsThreadSyncLock();
-    if ((qh->used.count == 0) && (qh->getter_waiting.count == 0) && (qh->putter_waiting.count == 0)) {
-        osStatus_t ercd = PosixOsMessageQueueDelete((PosixOsMessageQueueType*)mq_id);
-        if (ercd != osOK) {
-            err = osErrorParameter;
-        }
+    if (!PosixOsMessageQueueIsValid(qh)) {
+        err = osErrorParameter;
+    }
+    else if ((qh->used.count == 0) && (qh->getter_waiting.count == 0) && (qh->putter_waiting.count == 0)) {
+        err = PosixOsMessageQueueDelete((PosixOsMessageQueueType*)mq_id);
     }
     else {
         err = osErrorResource;
@@ -72,6 +72,7 @@ osStatus_t osMessageQueueGet(
     osStatus_t err = osErrorParameter;
     osStatus_t ercd;
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
+    //printf("osMessageQueueGet:enter\n");
     if (CurrentContextIsISR() && (timeout != 0)) {
         return osErrorParameter;
     }
@@ -106,6 +107,7 @@ osStatus_t osMessageQueueGet(
     else {
         //CMSIS_IMPL_ERROR("ERROR:%s %s() %d ercd = %d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
     }
+    //printf("osMessageQueueGet:exit\n");
     return err;
 }
 
@@ -134,6 +136,7 @@ osStatus_t osMessageQueuePut(
     osStatus_t ercd;
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
 
+    //printf("osMessageQueuePut:enter\n");
     if (CurrentContextIsISR() && (timeout != 0)) {
         return osErrorParameter;
     }
@@ -168,6 +171,7 @@ osStatus_t osMessageQueuePut(
     else {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d ercd = %d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
     }
+    //printf("osMessageQueuePut:exit\n");
     return err;
 }
 /*

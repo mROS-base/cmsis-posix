@@ -33,5 +33,9 @@ int main(int argc, const char* argv[])
 	cmsis_generic_test_init();
 	cmsis_generic_test_start();
 	cmsis_generic_test_end();
+
+	cmsis_message_queue_test_init();
+	cmsis_message_queue_test_start();
+	cmsis_message_queue_test_end();
 	return 0;
 }
