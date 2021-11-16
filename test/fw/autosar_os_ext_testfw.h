@@ -1,20 +1,8 @@
 #ifndef _AUTOSAR_OS_EXT_TESTFW_H_
 #define _AUTOSAR_OS_EXT_TESTFW_H_
 
-#include "autosar_os_ext_common.h"
+#include "posix_os_ext_common_private.h"
 #include <string.h>
-
-#define USER_THREAD_NUM 5
-typedef struct {
-  TaskType TaskID;
-  void (*func) (void*);
-} AutosarOsExtTestFwFuncMapEntryType;
-extern AutosarOsExtTestFwFuncMapEntryType autosar_os_ext_testfw_funcmap[USER_THREAD_NUM];
-
-extern void autosar_os_ext_testfw_setfunc(TaskType TaskID, void (*func) (void*));
-extern void autosar_os_ext_testfw_getfunc(void (**func) (void*));
-extern void autosar_os_ext_testfw_clrfunc(void);
-
 
 extern void autosar_os_ext_testfw_start_test(const char* name);
 extern void autosar_os_ext_testfw_end_test(void);
@@ -23,11 +11,11 @@ extern void autosar_os_ext_testfw_failed_callback(const char *testname, int test
 #define TestAssertEq(testname, testno, expect_value, actual_value)	\
 do {	\
 	if ((actual_value) == (expect_value)) { \
-		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(0x%lx) == expect_value(0x%lx)", testname, testno, actual_value, expect_value);*/ \
+		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(%p) == expect_value(%p)", testname, testno, actual_value, expect_value);*/ \
 	} \
 	else { \
 		autosar_os_ext_testfw_failed_callback(testname, testno);	\
-		syslog(LOG_NOTICE, " FAILED:<%s:%d> value(0x%lx) != expect_value(0x%lx)", testname, testno, actual_value, expect_value); \
+		syslog(LOG_NOTICE, " FAILED:<%s:%d> value(0x%x) != expect_value(0x%x)", testname, testno, actual_value, expect_value); \
 		syslog(LOG_NOTICE, " %s %s() line=%d", __FILE__, __FUNCTION__, __LINE__); \
 	} \
 } while (0)
@@ -35,11 +23,11 @@ do {	\
 #define TestAssertNotEq(testname, testno, expect_value, actual_value)	\
 do {	\
 	if ((actual_value) != (expect_value)) { \
-		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(0x%lx) != expect_value(0x%lx)", testname, testno, actual_value, expect_value); */ \
+		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(%p) != expect_value(%p)", testname, testno, actual_value, expect_value); */ \
 	} \
 	else { \
 		autosar_os_ext_testfw_failed_callback(testname, testno);	\
-		syslog(LOG_NOTICE, " FAILED:<%s:%d> value(0x%lx) == expect_value(0x%lx)", testname, testno, actual_value, expect_value); \
+		syslog(LOG_NOTICE, " FAILED:<%s:%d> value(%p) == expect_value(%p)", testname, testno, actual_value, expect_value); \
 		syslog(LOG_NOTICE, " %s %s() line=%d", __FILE__, __FUNCTION__, __LINE__); \
 	} \
 } while (0)
@@ -62,11 +50,11 @@ do {	\
 #define TestAssertInRange(testname, testno, expect_value_mini, expect_value_max, actual_value)	\
 do {	\
 	if (((expect_value_mini) <= (actual_value)) && ((actual_value) <= (expect_value_max))) { \
-		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(0x%lx) == expect_value(0x%lx)", testname, testno, actual_value, expect_value);*/ \
+		/* syslog(LOG_NOTICE, " PASSED:<%s:%d> value(%p) == expect_value(%p)", testname, testno, actual_value, expect_value);*/ \
 	} \
 	else { \
 		autosar_os_ext_testfw_failed_callback(testname, testno);	\
-		syslog(LOG_NOTICE, " FAILED:<%s:%d> expect_value_mini(0x%lx) <= value(0x%lx) <= expect_value_max(%d)", testname, testno, expect_value_mini, actual_value, expect_value_max); \
+		syslog(LOG_NOTICE, " FAILED:<%s:%d> expect_value_mini(%p) <= value(%p) <= expect_value_max(%d)", testname, testno, expect_value_mini, actual_value, expect_value_max); \
 		syslog(LOG_NOTICE, " %s %s() line=%d", __FILE__, __FUNCTION__, __LINE__); \
 	} \
 } while (0)
@@ -86,7 +74,7 @@ typedef struct {
   int (*get_exec_num) (void);
 } TestFwOperationType;
 
-#define TEST_FW_OP_NUM	7U
+#define TEST_FW_OP_NUM	1U
 extern TestFwOperationType test_fw_operations[TEST_FW_OP_NUM];
 
 #define TEST_FW_OP_ENTRY(name)	\

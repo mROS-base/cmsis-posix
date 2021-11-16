@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "cmsis_os.h"
+#include "autosar_os_ext_test.h"
 
 static void test_thread_func(void* arg)
 {
@@ -21,5 +22,8 @@ int main(int argc, const char* argv[])
 	uint32_t count = osKernelGetTickCount();
 	CMSIS_IMPL_INFO("main: %u", count);
 
+	cmsis_thread_test_init();
+	cmsis_thread_test_start();
+	cmsis_thread_test_end();
 	return 0;
 }

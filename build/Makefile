@@ -25,7 +25,7 @@ WFLAGS			+= -mtune=native -march=native -mfpmath=both
 DFLAGS			:= -DOS_POSIX
 
 
-CFLAGS			:= $(INCLUDES) -I. -I../test/fw $(WFLAGS)
+CFLAGS			:= $(INCLUDES) -I. -I../test/fw -I../test/api_test $(WFLAGS)
 
 #
 # AR flags
@@ -40,8 +40,11 @@ LIBS	:= -lm -lpthread  -ldl
 
 VPATH	:=	$(APPLDIR)
 VPATH	+=  ../test/api_test
+VPATH	+=  ../test/fw
 
 APPL_COBJS += main.o
+APPL_COBJS += cmsis_thread_test.o
+APPL_COBJS += autosar_os_ext_testfw.o
 
 all: $(APPL_COBJS)
 	gcc -o mros-proc $(APPL_COBJS) $(LIBS)

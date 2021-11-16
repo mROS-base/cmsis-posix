@@ -1,31 +1,6 @@
 #ifndef _AUTOSAR_OS_EXT_TEST_H_
 #define _AUTOSAR_OS_EXT_TEST_H_
 
-
-#ifdef OS_AUTOSAR
-
-
-
-#else
-
-#include "autosar_os_ext_task.h"
-
-extern void	TASKNAME(AutosarOsExtTestTask) (intptr_t exinf);
-extern void	TASKNAME(AutosarOsExtTest2Task) (intptr_t exinf);
-
-
-extern void	TASKNAME(AutosarOsTaskTestControl) (intptr_t exinf);
-
-extern void	TASKNAME(AutosarOsTaskTestSupplier1) (intptr_t exinf);
-extern void	TASKNAME(AutosarOsTaskTestSupplier2) (intptr_t exinf);
-extern void	TASKNAME(AutosarOsTaskTestSupplier3) (intptr_t exinf);
-
-extern void	TASKNAME(AutosarOsTaskTestConsumer1) (intptr_t exinf);
-extern void	TASKNAME(AutosarOsTaskTestConsumer2) (intptr_t exinf);
-extern void	TASKNAME(AutosarOsTaskTestConsumer3) (intptr_t exinf);
-extern void ALARMCALLBACKNAME(AutosarOsTestCyclicHandler)(intptr_t exinf);
-
-#endif
 /*********************************************
  * Test Functions
  *********************************************/
