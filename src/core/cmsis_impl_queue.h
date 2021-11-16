@@ -39,16 +39,16 @@
  *  $Id: queue.h 117 2014-05-13 19:41:44Z ertl-hiro $
  */
 
-/*
- *		キュー操作ライブラリ
- *
- *  このキュー操作ライブラリでは，キューヘッダを含むリング構造のダブル
- *  リンクキューを扱う．具体的には，キューヘッダの次エントリはキューの
- *  先頭のエントリ，前エントリはキューの末尾のエントリとする．また，キ
- *  ューの先頭のエントリの前エントリと，キューの末尾のエントリの次エン
- *  トリは，キューヘッダとする．空のキューは，次エントリ，前エントリと
- *  も自分自身を指すキューヘッダであらわす．
- */
+ /*
+  *		キュー操作ライブラリ
+  *
+  *  このキュー操作ライブラリでは，キューヘッダを含むリング構造のダブル
+  *  リンクキューを扱う．具体的には，キューヘッダの次エントリはキューの
+  *  先頭のエントリ，前エントリはキューの末尾のエントリとする．また，キ
+  *  ューの先頭のエントリの前エントリと，キューの末尾のエントリの次エン
+  *  トリは，キューヘッダとする．空のキューは，次エントリ，前エントリと
+  *  も自分自身を指すキューヘッダであらわす．
+  */
 
 #ifndef	_CMSIS_IMPL_TOPPERS_QUEUE_H_
 #define	_CMSIS_IMPL_TOPPERS_QUEUE_H_
@@ -59,102 +59,102 @@ extern "C" {
 
 #include "cmsis_impl_types.h"
 
-/*
- *  キューのデータ構造の定義
- */
-typedef struct cmsis_impl_queue {
-  struct cmsis_impl_queue *p_next;		/* 次エントリへのポインタ */
-  struct cmsis_impl_queue *p_prev;		/* 前エントリへのポインタ */
-} CMSIS_IMPL_QUEUE;
+    /*
+     *  キューのデータ構造の定義
+     */
+    typedef struct cmsis_impl_queue {
+        struct cmsis_impl_queue* p_next;		/* 次エントリへのポインタ */
+        struct cmsis_impl_queue* p_prev;		/* 前エントリへのポインタ */
+    } CMSIS_IMPL_QUEUE;
 
-/*
- *  キューの初期化
- *
- *  p_queueにはキューヘッダを指定する．
- */
-Inline void
-cmsis_impl_queue_initialize(CMSIS_IMPL_QUEUE *p_queue)
-{
-  p_queue->p_prev = p_queue;
-  p_queue->p_next = p_queue;
-}
+    /*
+     *  キューの初期化
+     *
+     *  p_queueにはキューヘッダを指定する．
+     */
+    Inline void
+        cmsis_impl_queue_initialize(CMSIS_IMPL_QUEUE* p_queue)
+    {
+        p_queue->p_prev = p_queue;
+        p_queue->p_next = p_queue;
+    }
 
-/*
- *  キューの前エントリへの挿入
- *
- *  p_queueの前にp_entryを挿入する．p_queueにキューヘッダを指定した場
- *  合には，キューの末尾にp_entryを挿入することになる．
- */
-Inline void
-cmsis_impl_queue_insert_prev(CMSIS_IMPL_QUEUE *p_queue, CMSIS_IMPL_QUEUE *p_entry)
-{
-  p_entry->p_prev = p_queue->p_prev;
-  p_entry->p_next = p_queue;
-  p_queue->p_prev->p_next = p_entry;
-  p_queue->p_prev = p_entry;
-}
+    /*
+     *  キューの前エントリへの挿入
+     *
+     *  p_queueの前にp_entryを挿入する．p_queueにキューヘッダを指定した場
+     *  合には，キューの末尾にp_entryを挿入することになる．
+     */
+    Inline void
+        cmsis_impl_queue_insert_prev(CMSIS_IMPL_QUEUE* p_queue, CMSIS_IMPL_QUEUE* p_entry)
+    {
+        p_entry->p_prev = p_queue->p_prev;
+        p_entry->p_next = p_queue;
+        p_queue->p_prev->p_next = p_entry;
+        p_queue->p_prev = p_entry;
+    }
 
-/*
- *  キューの次エントリへの挿入
- *
- *  p_queueの次にp_entryを挿入する．p_queueにキューヘッダを指定した場
- *  合には，キューの先頭にp_entryを挿入することになる．
- */
-Inline void
-cmsis_impl_queue_insert_next(CMSIS_IMPL_QUEUE *p_queue, CMSIS_IMPL_QUEUE *p_entry)
-{
-  p_entry->p_prev = p_queue;
-  p_entry->p_next = p_queue->p_next;
-  p_queue->p_next->p_prev = p_entry;
-  p_queue->p_next = p_entry;
-}
+    /*
+     *  キューの次エントリへの挿入
+     *
+     *  p_queueの次にp_entryを挿入する．p_queueにキューヘッダを指定した場
+     *  合には，キューの先頭にp_entryを挿入することになる．
+     */
+    Inline void
+        cmsis_impl_queue_insert_next(CMSIS_IMPL_QUEUE* p_queue, CMSIS_IMPL_QUEUE* p_entry)
+    {
+        p_entry->p_prev = p_queue;
+        p_entry->p_next = p_queue->p_next;
+        p_queue->p_next->p_prev = p_entry;
+        p_queue->p_next = p_entry;
+    }
 
-/*
- *  エントリの削除
- *
- *  p_entryをキューから削除する．
- */
-Inline void
-cmsis_impl_queue_delete(CMSIS_IMPL_QUEUE *p_entry)
-{
-  p_entry->p_prev->p_next = p_entry->p_next;
-  p_entry->p_next->p_prev = p_entry->p_prev;
-}
+    /*
+     *  エントリの削除
+     *
+     *  p_entryをキューから削除する．
+     */
+    Inline void
+        cmsis_impl_queue_delete(CMSIS_IMPL_QUEUE* p_entry)
+    {
+        p_entry->p_prev->p_next = p_entry->p_next;
+        p_entry->p_next->p_prev = p_entry->p_prev;
+    }
 
-/*
- *  キューの次エントリの取出し
- *
- *  p_queueの次エントリをキューから削除し，削除したエントリを返す．
- *  p_queueにキューヘッダを指定した場合には，キューの先頭のエントリを
- *  取り出すことになる．p_queueに空のキューを指定して呼び出してはなら
- *  ない．
- */
-Inline CMSIS_IMPL_QUEUE *
-cmsis_impl_queue_delete_next(CMSIS_IMPL_QUEUE *p_queue)
-{
-  CMSIS_IMPL_QUEUE	*p_entry;
+    /*
+     *  キューの次エントリの取出し
+     *
+     *  p_queueの次エントリをキューから削除し，削除したエントリを返す．
+     *  p_queueにキューヘッダを指定した場合には，キューの先頭のエントリを
+     *  取り出すことになる．p_queueに空のキューを指定して呼び出してはなら
+     *  ない．
+     */
+    Inline CMSIS_IMPL_QUEUE*
+        cmsis_impl_queue_delete_next(CMSIS_IMPL_QUEUE* p_queue)
+    {
+        CMSIS_IMPL_QUEUE* p_entry;
 
-  assert(p_queue->p_next != p_queue);
-  p_entry = p_queue->p_next;
-  p_queue->p_next = p_entry->p_next;
-  p_entry->p_next->p_prev = p_queue;
-  return(p_entry);
-}
+        assert(p_queue->p_next != p_queue);
+        p_entry = p_queue->p_next;
+        p_queue->p_next = p_entry->p_next;
+        p_entry->p_next->p_prev = p_queue;
+        return(p_entry);
+    }
 
-/*
- *  キューが空かどうかのチェック
- *
- *  p_queueにはキューヘッダを指定する．
- */
-Inline bool_t
-cmsis_impl_queue_empty(CMSIS_IMPL_QUEUE *p_queue)
-{
-  if (p_queue->p_next == p_queue) {
-    assert(p_queue->p_prev == p_queue);
-    return(true);
-  }
-  return(false);
-}
+    /*
+     *  キューが空かどうかのチェック
+     *
+     *  p_queueにはキューヘッダを指定する．
+     */
+    Inline bool_t
+        cmsis_impl_queue_empty(CMSIS_IMPL_QUEUE* p_queue)
+    {
+        if (p_queue->p_next == p_queue) {
+            assert(p_queue->p_prev == p_queue);
+            return(true);
+        }
+        return(false);
+    }
 
 #ifdef __cplusplus
 }

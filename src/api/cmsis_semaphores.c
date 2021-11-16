@@ -1,6 +1,6 @@
 #include "cmsis_os.h"
 #include "cmsis_semaphores_private.h"
-#include "cmsis_posix_os_task_sync.h"
+#include "cmsis_posix_os_thread_sync.h"
 #include "cmsis_posix_os_memory.h"
 #include "posix_os_ext_common_private.h"
 
@@ -113,9 +113,9 @@ osStatus_t osSemaphoreAcquire_nolock(CmsisSemType* semp, uint32_t timeout)
         }
         else {
             if (timeout == osWaitForever) {
-                timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
+                timeout = POSIX_OS_THREAD_SYNC_WAIT_FOREVER;
             }
-            (void)PosixOsTaskSyncWait(&semp->waiting, timeout, &ercd);
+            (void)PosixOsThreadSyncWait(&semp->waiting, timeout, &ercd);
             if (ercd != osOK) {
                 err = osErrorTimeout;
             }
@@ -128,7 +128,7 @@ osStatus_t osSemaphoreRelease_nolock(CmsisSemType* semp)
 {
     osStatus_t err = osOK;
     if (semp->waiting.count > 0) {
-        (void)PosixOsTaskSyncWakeupFirstEntry(&semp->waiting, NULL, osOK);
+        (void)PosixOsThreadSyncWakeupFirstEntry(&semp->waiting, NULL, osOK);
     }
     else if (semp->count < semp->max_count) {
         semp->count++;

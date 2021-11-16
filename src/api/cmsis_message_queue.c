@@ -1,7 +1,7 @@
 #include "cmsis_os.h"
 #include "posix_os_ext_common_private.h"
 #include "cmsis_posix_os_message_queue.h"
-#include "cmsis_posix_os_task_sync.h"
+#include "cmsis_posix_os_thread_sync.h"
 #include <string.h>
 
 osMessageQueueId_t osMessageQueueNew(
@@ -92,7 +92,7 @@ osStatus_t osMessageQueueGet(
     }
     else {
         if (timeout == osWaitForever) {
-            arg_timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
+            arg_timeout = POSIX_OS_THREAD_SYNC_WAIT_FOREVER;
         }
         err = osErrorTimeout;
     }
@@ -154,7 +154,7 @@ osStatus_t osMessageQueuePut(
     }
     else {
         if (timeout == osWaitForever) {
-            arg_timeout = POSIX_OS_TASK_SYNC_WAIT_FOREVER;
+            arg_timeout = POSIX_OS_THREAD_SYNC_WAIT_FOREVER;
         }
         err = osErrorTimeout;
     }

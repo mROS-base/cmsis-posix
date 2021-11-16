@@ -1,6 +1,6 @@
 #include "cmsis_posix_os_message_queue.h"
 #include "cmsis_posix_os_memory.h"
-#include "cmsis_posix_os_task_sync.h"
+#include "cmsis_posix_os_thread_sync.h"
 #include "posix_os_ext_common_private.h"
 #include <string.h>
 
@@ -75,12 +75,12 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->used);
     if (entry == NULL) {
         if (timeout != 0) {
-            entry = (PosixOsMessageQueueEntryType*)PosixOsTaskSyncWait(&qh->getter_waiting, timeout, NULL);
+            entry = (PosixOsMessageQueueEntryType*)PosixOsThreadSyncWait(&qh->getter_waiting, timeout, NULL);
         }
     }
     if (entry != NULL) {
         memcpy(msg_ptr, entry->data, qh->entry_size);
-        if (!PosixOsTaskSyncWakeupFirstEntry(&qh->putter_waiting, entry, osOK)) {
+        if (!PosixOsThreadSyncWakeupFirstEntry(&qh->putter_waiting, entry, osOK)) {
             PosixOsQueueHeadAddTail(&qh->free, &entry->queue);
         }
         else {
@@ -111,12 +111,12 @@ osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType* qh, const void* msg_p
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->free);
     if (entry == NULL) {
         if (timeout != 0) {
-            entry = (PosixOsMessageQueueEntryType*)PosixOsTaskSyncWait(&qh->putter_waiting, timeout, NULL);
+            entry = (PosixOsMessageQueueEntryType*)PosixOsThreadSyncWait(&qh->putter_waiting, timeout, NULL);
         }
     }
     if (entry != NULL) {
         memcpy(entry->data, msg_ptr, qh->entry_size);
-        if (!PosixOsTaskSyncWakeupFirstEntry(&qh->getter_waiting, entry, osOK)) {
+        if (!PosixOsThreadSyncWakeupFirstEntry(&qh->getter_waiting, entry, osOK)) {
             (void)PosixOsQueueHeadAddTail(&qh->used, &entry->queue);
         }
         else {

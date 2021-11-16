@@ -1,4 +1,4 @@
-#include "cmsis_posix_os_task_sync.h"
+#include "cmsis_posix_os_thread_sync.h"
 #include "cmsis_posix_os_time.h"
 #include "posix_os_ext_common_private.h"
 
@@ -57,7 +57,7 @@ static void add_timespec(struct timespec* tmop, uint32_t timeout)
     return;
 }
 
-osStatus_t PosixOsThreadSyncWait(uint32_t timeout)
+osStatus_t PosixOsThreadSyncSleep(uint32_t timeout)
 {
     osStatus_t ret = osOK;
     struct timespec tmo;
@@ -76,7 +76,7 @@ osStatus_t PosixOsThreadSyncWait(uint32_t timeout)
     return ret;
 }
 
-void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout, osStatus_t* ercdp)
+void* PosixOsThreadSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout, osStatus_t* ercdp)
 {
     PosixOsTaskWaitQueueEntryType wait_info;
     struct timespec tmo;
@@ -104,7 +104,7 @@ void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout,
     }
     return wait_info.data;
 }
-bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, osStatus_t ercd)
+bool_t PosixOsThreadSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, osStatus_t ercd)
 {
     PosixOsTaskWaitQueueEntryType *wait_infop = (PosixOsTaskWaitQueueEntryType*)PosixOsQueueHeadRemoveFirst(waiting_queue);
     if (wait_infop != NULL) {

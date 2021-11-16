@@ -19,7 +19,5 @@ do {	\
 extern void PosixOsQueueHeadAddTail(PosixOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry);
 extern CMSIS_IMPL_QUEUE* PosixOsQueueHeadRemoveFirst(PosixOsQueueHeadType *headp);
 extern void PosixOsQueueHeadRemoveEntry(PosixOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry);
-extern void PosixOsQueueHeadConditionalRemove(PosixOsQueueHeadType *srcq, PosixOsQueueHeadType *dstq, bool_t (*cond_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg);
-extern void PosixOsQueueHeadDoAction(PosixOsQueueHeadType *headp, void (*act_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg);
 
 #endif /* _CMSIS_POSIX_OS_QUEUE_H_ */

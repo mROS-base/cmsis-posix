@@ -25,7 +25,7 @@ APPL_COBJS += cmsis_thread.o
 APPL_COBJS += cmsis_posix_os_memory.o
 APPL_COBJS += cmsis_posix_os_queue.o
 APPL_COBJS += cmsis_posix_os_message_queue.o
-APPL_COBJS += cmsis_posix_os_task_sync.o
+APPL_COBJS += cmsis_posix_os_thread_sync.o
 APPL_COBJS += cmsis_posix_os_time.o
 
 APPL_COBJS += posix_os.o
