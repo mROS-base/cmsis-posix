@@ -25,5 +25,13 @@ int main(int argc, const char* argv[])
 	cmsis_thread_test_init();
 	cmsis_thread_test_start();
 	cmsis_thread_test_end();
+
+	cmsis_kernel_test_init();
+	cmsis_kernel_test_start();
+	cmsis_kernel_test_end();
+
+	cmsis_generic_test_init();
+	cmsis_generic_test_start();
+	cmsis_generic_test_end();
 	return 0;
 }

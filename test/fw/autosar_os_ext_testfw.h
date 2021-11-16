@@ -54,10 +54,11 @@ do {	\
 	} \
 	else { \
 		autosar_os_ext_testfw_failed_callback(testname, testno);	\
-		syslog(LOG_NOTICE, " FAILED:<%s:%d> expect_value_mini(%p) <= value(%p) <= expect_value_max(%d)", testname, testno, expect_value_mini, actual_value, expect_value_max); \
+		syslog(LOG_NOTICE, " FAILED:<%s:%d> expect_value_mini(%d) <= value(%d) <= expect_value_max(%d)", testname, testno, expect_value_mini, actual_value, expect_value_max); \
 		syslog(LOG_NOTICE, " %s %s() line=%d", __FILE__, __FUNCTION__, __LINE__); \
 	} \
 } while (0)
+
 
 
 extern void autosar_os_ext_testfw_set_cyclic_handler_func(void (*func) (void), void *argp);
@@ -74,7 +75,7 @@ typedef struct {
   int (*get_exec_num) (void);
 } TestFwOperationType;
 
-#define TEST_FW_OP_NUM	1U
+#define TEST_FW_OP_NUM	2U
 extern TestFwOperationType test_fw_operations[TEST_FW_OP_NUM];
 
 #define TEST_FW_OP_ENTRY(name)	\

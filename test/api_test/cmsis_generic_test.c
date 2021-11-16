@@ -1,19 +1,17 @@
-#include "autosar_os_ext_common.h"
+#include "posix_os_ext_common_private.h"
 #include "cmsis_os.h"
 #include "autosar_os_ext_test.h"
 #include "autosar_os_ext_testfw.h"
-#include "autosar_os_ext_user_config.h"
 
-#include "cmsis_autosar_os_time.h"
 
 static void test_delay_01(void);
 //static void test_delay_02(void);	//not subject to inspection
 static void test_delay_03(void);
-static void test_delay_04(void);
-static void test_delay_05(void);
-static void test_delay_06(void);
-static void test_delay_07(void);
-static void test_delay_08(void);
+//static void test_delay_04(void);
+//static void test_delay_05(void);
+//static void test_delay_06(void);
+//static void test_delay_07(void);
+//static void test_delay_08(void);
 
 
 
@@ -29,13 +27,14 @@ static void test_delay_08(void);
 
 
 #define TEST_DELAY_TICK_COUNT_MAX	UINT32_MAX
+#define USER_THREAD_NUM		(7U)
 
 typedef struct {
   char		id;
   uint32_t	time;
 } TestDelayWakeupInfoType;
 static TestDelayWakeupInfoType test_delay_wakeup[USER_THREAD_NUM];
-static int test_delay_wakeup_count = 0U;
+//static int test_delay_wakeup_count = 0U;
 
 static int exec_cunt = 0U;
 
@@ -69,11 +68,11 @@ void cmsis_generic_test_start(void)
 {
   test_exec(test_delay_01);
   test_exec(test_delay_03);
-  test_exec(test_delay_04);
-  test_exec(test_delay_05);
-  test_exec(test_delay_06);
-  test_exec(test_delay_07);
-  test_exec(test_delay_08);
+  //test_exec(test_delay_04);
+  //test_exec(test_delay_05);
+  //test_exec(test_delay_06);
+  //test_exec(test_delay_07);
+  //test_exec(test_delay_08);
   return;
 }
 
@@ -96,7 +95,7 @@ static void test_delay_01(void)
     TestAssertInRange(api_name, 1, exp_val, exp_val+1U, (wakeup_time - current_time));
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
+
   }
 
   return;
@@ -113,9 +112,8 @@ static void test_delay_task_callback1(void *argp)
   err = osDelay(TEST_DELAY_TIME_100ms);
   TestAssertEq(api_name, 1, osOK, err);
 
-  test_delay_wakeup[test_delay_wakeup_count].id = TEST_DELAY_TASK_CALLBACK1;
-  test_delay_wakeup[test_delay_wakeup_count].time = osKernelGetTickCount();
-  test_delay_wakeup_count++;
+  test_delay_wakeup[0].id = TEST_DELAY_TASK_CALLBACK1;
+  test_delay_wakeup[0].time = osKernelGetTickCount();
 
   return;
 }
@@ -128,9 +126,8 @@ static void test_delay_task_callback2(void *argp)
   err = osDelay(TEST_DELAY_TIME_100ms);
   TestAssertEq(api_name, 1, osOK, err);
 
-  test_delay_wakeup[test_delay_wakeup_count].id = TEST_DELAY_TASK_CALLBACK2;
-  test_delay_wakeup[test_delay_wakeup_count].time = osKernelGetTickCount();
-  test_delay_wakeup_count++;
+  test_delay_wakeup[1].id = TEST_DELAY_TASK_CALLBACK2;
+  test_delay_wakeup[1].time = osKernelGetTickCount();
 
   return;
 }
@@ -142,27 +139,23 @@ static void test_delay_03(void)
   uint32_t exp_val;
 
   {
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_delay_task_callback1);
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier3, test_delay_task_callback2);
-
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, NULL, NULL);
-    (void)osThreadNew(AutosarOsTaskTestSupplier3_Body, NULL, NULL);
+    (void)osThreadNew(test_delay_task_callback1, NULL, NULL);
+    (void)osThreadNew(test_delay_task_callback2, NULL, NULL);
 
     (void)osDelay(TEST_DELAY_TIME_200ms);
 
     exp_val =  test_delay_wakeup[0].time;
 
-    TestAssertEq(api_name, 1, test_delay_wakeup[0].id, TEST_DELAY_TASK_CALLBACK2);
-    TestAssertEq(api_name, 2, test_delay_wakeup[1].id, TEST_DELAY_TASK_CALLBACK1);
+    TestAssertEq(api_name, 1, test_delay_wakeup[0].id, TEST_DELAY_TASK_CALLBACK1);
+    TestAssertEq(api_name, 2, test_delay_wakeup[1].id, TEST_DELAY_TASK_CALLBACK2);
     TestAssertInRange(api_name, 3, exp_val, exp_val+1U, test_delay_wakeup[1].time);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   return;
 }
 
-
+#if 0
 static void test_delay_task_callback4(void *argp)
 {
   uint32_t current_time;
@@ -178,8 +171,9 @@ static void test_delay_task_callback4(void *argp)
 
   return;
 }
+#endif
 
-
+#if 0
 static void test_delay_04(void)
 {
   char *api_name = "osDelay:No.4";
@@ -198,8 +192,7 @@ static void test_delay_04(void)
     AutosarOsTimeIncTickCountSet(TEST_DELAY_TIME_1000ms);
 
     over_time = TEST_DELAY_TIME_200ms + 9U;
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier1, test_delay_task_callback4);
-    (void)osThreadNew(AutosarOsTaskTestSupplier1_Body, (void*)&over_time, NULL);
+    (void)osThreadNew(test_delay_task_callback4, (void*)&over_time, NULL);
 
     //do
     err = osDelay(TEST_DELAY_TIME_200ms);
@@ -208,14 +201,15 @@ static void test_delay_04(void)
     TestAssertInRange(api_name, 1, exp_val, exp_val+1U, current_time);
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   AutosarOsTimeIncTickCountSet(test_start_time);
 
   return;
 }
+#endif
 
+#if 0
 static void test_delay_05(void)
 {
   uint32_t test_start_time;
@@ -233,15 +227,14 @@ static void test_delay_05(void)
     TestAssertInRange(api_name, 1, exp_val, exp_val+1U, wakeup_time);
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   AutosarOsTimeIncTickCountSet(test_start_time);
 
   return;
 }
-
-
+#endif
+#if 0
 static void test_delay_06(void)
 {
   uint32_t test_start_time;
@@ -254,8 +247,7 @@ static void test_delay_06(void)
     //pre
     AutosarOsTimeIncTickCountSet(TEST_DELAY_TIME_1000ms);
     over_time = TEST_DELAY_TICK_COUNT_MAX - TEST_DELAY_TIME_1000ms + 9U;
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier1, test_delay_task_callback4);
-    (void)osThreadNew(AutosarOsTaskTestSupplier1_Body, (void*)&over_time, NULL);
+    (void)osThreadNew(test_delay_task_callback4, (void*)&over_time, NULL);
 
     //do
     err = osDelay(TEST_DELAY_TIME_200ms);
@@ -263,15 +255,14 @@ static void test_delay_06(void)
     TestAssertInRange(api_name, 1, 10U, 11U, wakeup_time);
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   AutosarOsTimeIncTickCountSet(test_start_time);
 
   return;
 }
-
-
+#endif
+#if 0
 static void test_delay_07(void)
 {
   uint32_t test_start_time;
@@ -285,22 +276,21 @@ static void test_delay_07(void)
 
     //pre
     over_time = TEST_DELAY_TICK_COUNT_MAX - (TEST_DELAY_TICK_COUNT_MAX - 10U) + (TEST_DELAY_TIME_200ms + 9U);
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier1, test_delay_task_callback4);
-    (void)osThreadNew(AutosarOsTaskTestSupplier1_Body, (void*)&over_time, NULL);
+    (void)osThreadNew(test_delay_task_callback4, (void*)&over_time, NULL);
 
     err = osDelay(TEST_DELAY_TIME_200ms);
     uint32_t wakeup_time = osKernelGetTickCount();
     TestAssertInRange(api_name, 1, 210U, 211U, wakeup_time);
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   AutosarOsTimeIncTickCountSet(test_start_time);
 
   return;
 }
-
+#endif
+#if 0
 static void test_delay_08(void)
 {
   uint32_t test_start_time;
@@ -315,11 +305,10 @@ static void test_delay_08(void)
     TestAssertInRange(api_name, 1, 189, 190, wakeup_time);
     TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_clrfunc();
   }
 
   AutosarOsTimeIncTickCountSet(test_start_time);
 
   return;
 }
-
+#endif

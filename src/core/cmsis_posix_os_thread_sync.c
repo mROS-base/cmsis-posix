@@ -19,7 +19,6 @@ typedef struct {
 static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout);
 
 
-static PosixOsQueueHeadInitializer(autosar_os_task_sync_queue);
 
 static pthread_mutex_t posix_os_mutex;
 static pthread_cond_t posix_os_cond;
@@ -94,7 +93,6 @@ void* PosixOsThreadSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeou
     if (waiting_queue != NULL) {
         PosixOsQueueHeadAddTail(waiting_queue, &wait_info.wait_queue);
     }
-    PosixOsQueueHeadAddTail(&autosar_os_task_sync_queue, &wait_info.winfo.queue);
 
     add_timespec(&tmo, timeout);
     int err = pthread_cond_timedwait(&wait_info.winfo.cond, &posix_os_mutex, &tmo);
