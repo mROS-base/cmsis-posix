@@ -13,7 +13,7 @@ static void* posix_os_thread_func(void* argp)
     return NULL;
 }
 
-osThreadId_t osThreadNew(osThreadFunc_t	func, void *argument, const osThreadAttr_t *attr)
+osThreadId_t osThreadNew(osThreadFunc_t	func, void* argument, const osThreadAttr_t* attr)
 {
     pthread_t thread_id;
     PosixOsThreadFuncType arg;
@@ -44,13 +44,14 @@ osStatus_t osThreadTerminate(osThreadId_t thread_id)
 /*
  * Version 1
  */
-osThreadId osThreadCreate(const osThreadDef_t *thread_def, void *argument)
+osThreadId osThreadCreate(const osThreadDef_t* thread_def, void* argument)
 {
-  if (thread_def == NULL) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_def should not be NULL\n", __FILE__, __FUNCTION__, __LINE__);
-    return NULL;
-  } else if (thread_def->pthread == NULL) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_def->pthread should not be NULL\n", __FILE__, __FUNCTION__, __LINE__);
-  }
-  return osThreadNew((osThreadFunc_t)thread_def->pthread, argument, NULL);
+    if (thread_def == NULL) {
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_def should not be NULL\n", __FILE__, __FUNCTION__, __LINE__);
+        return NULL;
+    }
+    else if (thread_def->pthread == NULL) {
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_def->pthread should not be NULL\n", __FILE__, __FUNCTION__, __LINE__);
+    }
+    return osThreadNew((osThreadFunc_t)thread_def->pthread, argument, NULL);
 }
