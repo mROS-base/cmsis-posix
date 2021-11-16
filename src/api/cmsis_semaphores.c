@@ -14,7 +14,7 @@ osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const
     CMSIS_IMPL_ERROR("ERROR:%s %s() %d attr must be null\n", __FILE__, __FUNCTION__, __LINE__);
     return NULL;
   }
-  semp = (CmsisSemType *)AutosarOsMemoryAlloc(sizeof(CmsisSemType));
+  semp = (CmsisSemType *)PosixOsMemoryAlloc(sizeof(CmsisSemType));
   if (semp == NULL) {
     CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(CmsisSemType));
     return NULL;
@@ -22,7 +22,7 @@ osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const
   semp->count = initial_count;
   semp->max_count = max_count;
   semp->magicno = AUTOSAR_OSSEM_HEAD_MAGICNO;
-  AutosarOsQueueHeadInit(&semp->waiting);
+  PosixOsQueueHeadInit(&semp->waiting);
   return (osSemaphoreId_t)semp;
 }
 
@@ -95,7 +95,7 @@ osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
   SuspendOSInterrupts();
   if (semp->waiting.count == 0) {
     semp->magicno = 0;
-    AutosarOsMemoryFree(semp);
+    PosixOsMemoryFree(semp);
   } else {
     err = osErrorResource;
   }
@@ -117,7 +117,7 @@ osStatus_t osSemaphoreAcquire_nolock(CmsisSemType *semp, uint32_t timeout, TaskT
       if (timeout == osWaitForever) {
         timeout = AUTOSAR_OS_TASK_SYNC_WAIT_FOREVER;
       }
-      (void)AutosarOsTaskSyncWait(&semp->waiting, timeout, &ercd, taskID);
+      (void)PosixOsTaskSyncWait(&semp->waiting, timeout, &ercd, taskID);
       if (ercd != E_OK) {
         err = osErrorTimeout;
       }
@@ -130,7 +130,7 @@ osStatus_t osSemaphoreRelease_nolock(CmsisSemType *semp)
 {
   osStatus_t err = osOK;
   if (semp->waiting.count > 0) {
-    (void)AutosarOsTaskSyncWakeupFirstEntry(&semp->waiting, NULL, E_OK);
+    (void)PosixOsTaskSyncWakeupFirstEntry(&semp->waiting, NULL, E_OK);
   } else if (semp->count < semp->max_count) {
     semp->count++;
   } else {

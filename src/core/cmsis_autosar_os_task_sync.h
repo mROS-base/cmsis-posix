@@ -3,11 +3,15 @@
 
 #include "cmsis_autosar_os_queue.h"
 #include "cmsis_autosar_os_types.h"
+#include "cmsis_os.h"
 
-extern StatusType AutosarOsTaskSyncSleep(uint32_t timeout);
-extern StatusType AutosarOsTaskSyncWakeup(TaskType taskID, StatusType ercd);
+extern osStatus_t PosixOsThreadSyncWait(uint32_t timeout);
 
-extern void *AutosarOsTaskSyncWait(AutosarOsQueueHeadType *waiting_queue, uint32_t timeout, StatusType *ercdp, TaskType taskID);
-extern bool_t AutosarOsTaskSyncWakeupFirstEntry(AutosarOsQueueHeadType *waiting_queue, void *data, StatusType ercd);
+extern void *PosixOsTaskSyncWait(PosixOsQueueHeadType *waiting_queue, uint32_t timeout, StatusType *ercdp, TaskType taskID);
+extern bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType *waiting_queue, void *data, StatusType ercd);
+
+extern void PosixOsThreadSyncInit(void);
+extern void PosixOsThreadSyncLock(void);
+extern void PosixOsThreadSyncUnlock(void);
 
 #endif /* _CMSIS_AUTOSAR_OS_TASK_SYNC_H_ */

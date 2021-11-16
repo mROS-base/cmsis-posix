@@ -2,9 +2,9 @@
 #define _AUTOSAR_OS_EXT_TESTFW_H_
 
 #include "autosar_os_ext_common.h"
-#include "autosar_os_ext_user_config.h"
 #include <string.h>
 
+#define USER_THREAD_NUM 5
 typedef struct {
   TaskType TaskID;
   void (*func) (void*);

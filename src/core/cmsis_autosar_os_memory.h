@@ -3,7 +3,7 @@
 
 #include "autosar_os_ext_common.h"
 
-extern void *AutosarOsMemoryAlloc(uint32_t size);
-extern void AutosarOsMemoryFree(void *addrp);
+extern void *PosixOsMemoryAlloc(uint32_t size);
+extern void PosixOsMemoryFree(void *addrp);
 
 #endif /* _CMSIS_AUTOSAR_OS_MEMORY_H_ */

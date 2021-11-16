@@ -3,49 +3,44 @@
 #include "autosar_os_ext_sys_config.h"
 #include "autosar_os_ext_common_private.h"
 
+typedef struct {
+    osThreadFunc_t func;
+    void* argp;
+} PosixOsThreadFuncType;
+
+static void* posix_os_thread_func(void* argp)
+{
+    PosixOsThreadFuncType* fp = (PosixOsThreadFuncType*)argp;
+    fp->func(fp->argp);
+    return NULL;
+}
+
 osThreadId_t osThreadNew(osThreadFunc_t	func, void *argument, const osThreadAttr_t *attr)
 {
-  TaskType taskID;
-  StatusType ercd;
+    pthread_t thread_id;
+    PosixOsThreadFuncType arg;
 
-  if (CurrentContextIsISR()) {
-    return NULL;
-  }
-  ercd = AutosarOsTaskConfigSet(func, argument);
-  if (ercd != E_OK) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d unrecognized func=0x%x\n", __FILE__, __FUNCTION__, __LINE__, func);
-    return NULL;
-  }
-  ercd = AutosarOsTaskConfigGetTaskID(func, &taskID);
-  if (ercd != E_OK) {
-    return NULL;
-  }
-  ercd = ActivateTask(taskID);
-  if (ercd != E_OK) {
-    return NULL;
-  }
-  return (osThreadId_t)taskID;
+    if (CurrentContextIsISR()) {
+        return NULL;
+    }
+    arg.func = func;
+    arg.argp = argument;
+    int err = pthread_create(&thread_id, NULL, posix_os_thread_func, &arg);
+    if (err != 0) {
+        //TODO ERROR
+        return NULL;
+    }
+
+    return (osThreadId_t)thread_id;
 }
 
 osStatus_t osThreadTerminate(osThreadId_t thread_id)
 {
-  TaskType taskID;
-
-  if (CurrentContextIsISR()) {
-    return osErrorISR;
-  }
-
-  StatusType ercd = GetTaskID(&taskID);
-  if (ercd != E_OK) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d GetTaskID() ercd =%d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
-    return osErrorParameter;
-  }
-  if (thread_id != NULL) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_id must be NULL\n", __FILE__, __FUNCTION__, __LINE__);
-    return osErrorParameter;
-  }
-  (void)TerminateTask();
-  return E_OK;
+    if (CurrentContextIsISR()) {
+        return osErrorISR;
+    }
+    pthread_exit(NULL);
+    return E_OK;
 }
 
 /*

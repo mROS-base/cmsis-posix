@@ -2,29 +2,24 @@
 #include "autosar_os_ext_common_private.h"
 #include <stdlib.h>
 
-void *AutosarOsMemoryAlloc(uint32_t size)
+void* PosixOsMemoryAlloc(uint32_t size)
 {
-  void *addrp = NULL;
+    void* addrp = NULL;
 
-  if (CurrentContextIsISR()) {
-    return NULL;
-  }
-  SuspendOSInterrupts();
-  addrp = malloc(size);
-  ResumeOSInterrupts();
-
-  return addrp;
+    if (CurrentContextIsISR()) {
+        return NULL;
+    }
+    addrp = malloc(size);
+    return addrp;
 }
 
-void AutosarOsMemoryFree(void *addrp)
+void PosixOsMemoryFree(void* addrp)
 {
-  if (CurrentContextIsISR()) {
+    if (CurrentContextIsISR()) {
+        return;
+    }
+    if (addrp != NULL) {
+        free(addrp);
+    }
     return;
-  }
-  if (addrp != NULL) {
-    SuspendOSInterrupts();
-    free(addrp);
-    ResumeOSInterrupts();
-  }
-  return;
 }

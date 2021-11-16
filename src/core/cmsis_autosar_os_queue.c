@@ -1,7 +1,7 @@
 #include "cmsis_autosar_os_queue.h"
 #include "cmsis_autosar_os_memory.h"
 
-void AutosarOsQueueHeadAddTail(AutosarOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry)
+void PosixOsQueueHeadAddTail(PosixOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry)
 {
   cmsis_impl_queue_initialize(entry);
   if (headp->entries == NULL) {
@@ -13,7 +13,7 @@ void AutosarOsQueueHeadAddTail(AutosarOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *
   headp->count++;
   return;
 }
-void AutosarOsQueueHeadRemoveEntry(AutosarOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry)
+void PosixOsQueueHeadRemoveEntry(PosixOsQueueHeadType *headp, CMSIS_IMPL_QUEUE *entry)
 {
   if (headp->entries != NULL) {
     CMSIS_IMPL_QUEUE *next = entry->p_next;
@@ -27,15 +27,15 @@ void AutosarOsQueueHeadRemoveEntry(AutosarOsQueueHeadType *headp, CMSIS_IMPL_QUE
   }
   return;
 }
-CMSIS_IMPL_QUEUE* AutosarOsQueueHeadRemoveFirst(AutosarOsQueueHeadType *headp)
+CMSIS_IMPL_QUEUE* PosixOsQueueHeadRemoveFirst(PosixOsQueueHeadType *headp)
 {
   CMSIS_IMPL_QUEUE *first = headp->entries;
   if (first != NULL) {
-    AutosarOsQueueHeadRemoveEntry(headp, first);
+    PosixOsQueueHeadRemoveEntry(headp, first);
   }
   return first;
 }
-void AutosarOsQueueHeadConditionalRemove(AutosarOsQueueHeadType *srcq, AutosarOsQueueHeadType *dstq, bool_t (*cond_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg)
+void PosixOsQueueHeadConditionalRemove(PosixOsQueueHeadType *srcq, PosixOsQueueHeadType *dstq, bool_t (*cond_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg)
 {
   uint32_t i;
   uint32_t count = srcq->count;
@@ -45,14 +45,14 @@ void AutosarOsQueueHeadConditionalRemove(AutosarOsQueueHeadType *srcq, AutosarOs
   for (i = 0; i < count; i++) {
     next = entry->p_next;
     if (cond_func(entry, arg)) {
-      AutosarOsQueueHeadRemoveEntry(srcq, entry);
-      AutosarOsQueueHeadAddTail(dstq, entry);
+      PosixOsQueueHeadRemoveEntry(srcq, entry);
+      PosixOsQueueHeadAddTail(dstq, entry);
     }
     entry = next;
   }
   return;
 }
-void AutosarOsQueueHeadDoAction(AutosarOsQueueHeadType *headp, void (*act_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg)
+void PosixOsQueueHeadDoAction(PosixOsQueueHeadType *headp, void (*act_func) (CMSIS_IMPL_QUEUE *entry, void *arg), void *arg)
 {
   uint32_t i;
   uint32_t count = headp->count;

@@ -11,7 +11,7 @@ osMessageQueueId_t osMessageQueueNew(
   const osMessageQueueAttr_t *attr)
 {
   uint32_t aligned_msg_size;
-  AutosarOsMessageQueueConfigType config;
+  PosixOsMessageQueueConfigType config;
 
   if (CurrentContextIsISR()) {
     return NULL;
@@ -31,13 +31,13 @@ osMessageQueueId_t osMessageQueueNew(
   config.control_datap = NULL;
   config.entries_datap = NULL;
 
-  return (osMessageQueueId_t*)AutosarOsMessageQueueCreate(&config);
+  return (osMessageQueueId_t*)PosixOsMessageQueueCreate(&config);
 }
 
 osStatus_t osMessageQueueDelete(osMessageQueueId_t mq_id)
 {
   osStatus_t err = osOK;
-  AutosarOsMessageQueueType *qh = (AutosarOsMessageQueueType*)mq_id;
+  PosixOsMessageQueueType *qh = (PosixOsMessageQueueType*)mq_id;
 
   if (CurrentContextIsISR()) {
     return osErrorISR;
@@ -47,7 +47,7 @@ osStatus_t osMessageQueueDelete(osMessageQueueId_t mq_id)
   }
   SuspendOSInterrupts();
   if ((qh->used.count == 0) && (qh->getter_waiting.count == 0) && (qh->putter_waiting.count == 0)) {
-    StatusType ercd = AutosarOsMessageQueueDelete((AutosarOsMessageQueueType*)mq_id);
+    StatusType ercd = PosixOsMessageQueueDelete((PosixOsMessageQueueType*)mq_id);
     if (ercd != E_OK) {
       err = osErrorParameter;
     }
@@ -67,7 +67,7 @@ osStatus_t osMessageQueueGet(
   uint32_t arg_timeout = timeout;
   osStatus_t err = osErrorParameter;
   StatusType ercd;
-  AutosarOsMessageQueueType *qh = (AutosarOsMessageQueueType*)mq_id;
+  PosixOsMessageQueueType *qh = (PosixOsMessageQueueType*)mq_id;
   if (CurrentContextIsISR() && (timeout != 0)) {
     return osErrorParameter;
   } else if (qh == NULL) {
@@ -88,7 +88,7 @@ osStatus_t osMessageQueueGet(
     }
     err = osErrorTimeout;
   }
-  ercd = AutosarOsMessageQueueGet(qh, msg_ptr, msg_prio, arg_timeout);
+  ercd = PosixOsMessageQueueGet(qh, msg_ptr, msg_prio, arg_timeout);
   if (ercd == E_OK) {
     err = osOK;
   } else if (ercd == E_OS_ID) {
@@ -101,11 +101,11 @@ osStatus_t osMessageQueueGet(
 
 uint32_t osMessageQueueGetCount(osMessageQueueId_t mq_id)
 {
-  AutosarOsMessageQueueType *qh = (AutosarOsMessageQueueType*)mq_id;
+  PosixOsMessageQueueType *qh = (PosixOsMessageQueueType*)mq_id;
   if (qh == NULL) {
     CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
     return 0;
-  } else if (!AutosarOsMessageQueueIsValid(qh)) {
+  } else if (!PosixOsMessageQueueIsValid(qh)) {
     CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
     return 0;
   }
@@ -121,7 +121,7 @@ osStatus_t osMessageQueuePut(
   uint32_t arg_timeout = timeout;
   osStatus_t err = osErrorParameter;
   StatusType ercd;
-  AutosarOsMessageQueueType *qh = (AutosarOsMessageQueueType*)mq_id;
+  PosixOsMessageQueueType *qh = (PosixOsMessageQueueType*)mq_id;
 
   if (CurrentContextIsISR() && (timeout != 0)) {
     return osErrorParameter;
@@ -143,7 +143,7 @@ osStatus_t osMessageQueuePut(
     }
     err = osErrorTimeout;
   }
-  ercd = AutosarOsMessageQueuePut(qh, msg_ptr, msg_prio, arg_timeout);
+  ercd = PosixOsMessageQueuePut(qh, msg_ptr, msg_prio, arg_timeout);
   if (ercd == E_OK) {
     err = osOK;
   } else if (ercd == E_OS_ID) {

@@ -3,170 +3,155 @@
 #include "autosar_os_ext_common_private.h"
 
 typedef struct {
-  CMSIS_IMPL_QUEUE	queue;
-  TaskType			taskID;
-  uint32_t			timeout;
-  uint32_t			stick;
-  uint32_t			expiretick;
-  StatusType			ercd;
-} AutosarOsTaskWaitInfoType;
+    CMSIS_IMPL_QUEUE	queue;
+    TaskType			taskID;
+    uint32_t			timeout;
+    uint32_t			stick;
+    StatusType			ercd;
+    pthread_cond_t      cond;
+} PosixOsTaskWaitInfoType;
 
 typedef struct {
-  CMSIS_IMPL_QUEUE			wait_queue;
-  void						*data;
-  AutosarOsTaskWaitInfoType		winfo;
-} AutosarOsTaskWaitQueueEntryType;
+    CMSIS_IMPL_QUEUE			wait_queue;
+    void* data;
+    PosixOsTaskWaitInfoType		winfo;
+} PosixOsTaskWaitQueueEntryType;
 
-static bool_t AutosarOsTaskIsTimeout(CMSIS_IMPL_QUEUE *entry, void *arg);
-static void AutosarOsTaskWakeup(CMSIS_IMPL_QUEUE *entry, void *arg);
-static bool_t AutosarOsTaskHasTargetId(CMSIS_IMPL_QUEUE *entry, void *arg);
-static void AutosarOsTaskSyncWaitInfoInit(AutosarOsTaskWaitInfoType *winfop, uint32_t timeout, TaskType taskID);
+static void PosixOsTaskWakeup(CMSIS_IMPL_QUEUE* entry, void* arg);
+static bool_t PosixOsTaskHasTargetId(CMSIS_IMPL_QUEUE* entry, void* arg);
+static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout, TaskType taskID);
 
 
-static AutosarOsQueueHeadInitializer(autosar_os_task_sync_queue);
+static PosixOsQueueHeadInitializer(autosar_os_task_sync_queue);
 
-StatusType AutosarOsTaskSyncSleep(uint32_t timeout)
+static pthread_mutex_t posix_os_mutex;
+static pthread_cond_t posix_os_cond;
+
+void PosixOsThreadSyncInit(void)
 {
-  AutosarOsTaskWaitInfoType winfo;
-  TaskType taskID;
-
-  StatusType ercd = GetTaskID(&taskID);
-  if (ercd != E_OK) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d winfo.ercd=%d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
-    return winfo.ercd;
-  }
-  AutosarOsTaskSyncWaitInfoInit(&winfo, timeout, taskID);
-  SuspendOSInterrupts();
-  AutosarOsQueueHeadAddTail(&autosar_os_task_sync_queue, &winfo.queue);
-  ResumeOSInterrupts();
-
-  (void)WaitEvent(AutosarOsExtEvent);
-  (void)ClearEvent(AutosarOsExtEvent);
-
-  return E_OK;
-}
-void *AutosarOsTaskSyncWait(AutosarOsQueueHeadType *waiting_queue, uint32_t timeout, StatusType *ercdp, TaskType taskID)
-{
-  AutosarOsTaskWaitQueueEntryType wait_info;
-
-  wait_info.data = NULL;
-  AutosarOsTaskSyncWaitInfoInit(&wait_info.winfo, timeout, taskID);
-
-  if (waiting_queue != NULL) {
-    AutosarOsQueueHeadAddTail(waiting_queue, &wait_info.wait_queue);
-  }
-  AutosarOsQueueHeadAddTail(&autosar_os_task_sync_queue, &wait_info.winfo.queue);
-  ResumeOSInterrupts();
-
-  (void)WaitEvent(AutosarOsExtEvent);
-  (void)ClearEvent(AutosarOsExtEvent);
-
-  SuspendOSInterrupts();
-  if (waiting_queue != NULL) {
-    AutosarOsQueueHeadRemoveEntry(waiting_queue, &wait_info.wait_queue);
-  }
-  if (ercdp != NULL) {
-    *ercdp = wait_info.winfo.ercd;
-  }
-  return wait_info.data;
-}
-bool_t AutosarOsTaskSyncWakeupFirstEntry(AutosarOsQueueHeadType *waiting_queue, void *data, StatusType ercd)
-{
-  AutosarOsTaskWaitQueueEntryType *wait_infop = (AutosarOsTaskWaitQueueEntryType*)waiting_queue->entries;
-  if (wait_infop != NULL) {
-    AutosarOsQueueHeadInitializer(dq);
-    wait_infop->data = data;
-    wait_infop->winfo.ercd = ercd;
-    AutosarOsQueueHeadConditionalRemove(&autosar_os_task_sync_queue, &dq, AutosarOsTaskHasTargetId, &wait_infop->winfo.taskID);
-
-    ResumeOSInterrupts();
-    AutosarOsQueueHeadDoAction(&dq, AutosarOsTaskWakeup, &ercd);
-    SuspendOSInterrupts();
-    return true;
-  } else {
-    return false;
-  }
-}
-
-StatusType AutosarOsTaskSyncWakeup(TaskType taskID, StatusType ercd)
-{
-  AutosarOsQueueHeadInitializer(dq);
-
-  SuspendOSInterrupts();
-  AutosarOsQueueHeadConditionalRemove(&autosar_os_task_sync_queue, &dq, AutosarOsTaskHasTargetId, &taskID);
-  ResumeOSInterrupts();
-
-  AutosarOsQueueHeadDoAction(&dq, AutosarOsTaskWakeup, &ercd);
-  return E_OK;
-}
-
-static void TaskScheduleCallback(void)
-{
-  uint32_t curr;
-  StatusType err = E_OS_LIMIT;
-  AutosarOsQueueHeadInitializer(dq);
-
-  AutosarOsTimeIncTickCount();
-  if (autosar_os_task_sync_queue.entries == NULL) {
+    pthread_mutex_init(&posix_os_mutex, NULL);
+    pthread_cond_init(&posix_os_cond, NULL);
     return;
-  }
-  curr = AutosarOsTimeGetTickCount();
-
-  SuspendOSInterrupts();
-  AutosarOsQueueHeadConditionalRemove(&autosar_os_task_sync_queue, &dq, AutosarOsTaskIsTimeout, (void*)&curr);
-  ResumeOSInterrupts();
-
-  AutosarOsQueueHeadDoAction(&dq, AutosarOsTaskWakeup, &err);
-  return;
 }
 
-TASK(AutosarOsExtCyclicTask)
+void PosixOsThreadSyncLock(void)
 {
-  TaskScheduleCallback();
-  TerminateTask();
-  return;
+    pthread_mutex_lock(&posix_os_mutex);
+    return;
+}
+void PosixOsThreadSyncUnlock(void)
+{
+    pthread_mutex_unlock(&posix_os_mutex);
+    return;
 }
 
-static void AutosarOsTaskSyncWaitInfoInit(AutosarOsTaskWaitInfoType *winfop, uint32_t timeout, TaskType taskID)
+static void add_timespec(struct timespec* tmop, uint32_t timeout)
 {
-  winfop->timeout = timeout;
-  winfop->stick = AutosarOsTimeGetTickCount();
-  winfop->expiretick = AutosarOsTimeGetExpireTickCount(winfop->stick, timeout);
-  cmsis_impl_queue_initialize(&winfop->queue);
-  winfop->taskID = taskID;
-  winfop->ercd = E_OK;
-  return;
+    clock_gettime(CLOCK_MONOTONIC, tmop);
+    tmop->tv_sec += (timeout / TIMESPEC_MSEC);
+    tmop->tv_nsec += ((timeout % TIMESPEC_MSEC) * TIMESPEC_MSEC);
+    if (tmop->tv_nsec >= TIMESPEC_NANOSEC) {
+        struct timespec over_tmo;
+        over_tmo.tv_sec = (tmop->tv_nsec / TIMESPEC_NANOSEC);
+        over_tmo.tv_nsec = (over_tmo.tv_sec * TIMESPEC_NANOSEC);
+        tmop->tv_sec += over_tmo.tv_sec;
+        tmop->tv_nsec -= over_tmo.tv_nsec;
+    }
+    return;
+}
+
+osStatus_t PosixOsThreadSyncWait(uint32_t timeout)
+{
+    osStatus_t ret = osOK;
+    struct timespec tmo;
+    pthread_mutex_t mutex;
+    pthread_cond_t cond;
+    pthread_mutex_init(&mutex, NULL);
+    pthread_cond_init(&cond, NULL);
+
+    pthread_mutex_lock(&mutex);
+    add_timespec(&tmo, timeout);
+    int err = pthread_cond_timedwait(&cond, &mutex, &tmo);
+    if (err != ETIMEDOUT) {
+        ret = osError;
+    }
+    pthread_mutex_unlock(&mutex);
+    return ret;
+}
+
+void* PosixOsTaskSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeout, StatusType* ercdp, TaskType taskID)
+{
+    PosixOsTaskWaitQueueEntryType wait_info;
+    struct timespec tmo;
+
+    wait_info.data = NULL;
+    PosixOsTaskSyncWaitInfoInit(&wait_info.winfo, timeout, taskID);
+
+    if (waiting_queue != NULL) {
+        PosixOsQueueHeadAddTail(waiting_queue, &wait_info.wait_queue);
+    }
+    PosixOsQueueHeadAddTail(&autosar_os_task_sync_queue, &wait_info.winfo.queue);
+
+    add_timespec(&tmo, timeout);
+    int err = pthread_cond_timedwait(&wait_info.winfo.cond, &posix_os_mutex, &tmo);
+    if (waiting_queue != NULL) {
+        PosixOsQueueHeadRemoveEntry(waiting_queue, &wait_info.wait_queue);
+    }
+    if (ercdp != NULL) {
+        if ((err != 0) && (err != ETIMEDOUT)) {
+            *ercdp = E_OS_ID; //TODO
+        }
+        else {
+            *ercdp = wait_info.winfo.ercd;
+        }
+    }
+    return wait_info.data;
+}
+bool_t PosixOsTaskSyncWakeupFirstEntry(PosixOsQueueHeadType* waiting_queue, void* data, StatusType ercd)
+{
+    PosixOsTaskWaitQueueEntryType* wait_infop = (PosixOsTaskWaitQueueEntryType*)waiting_queue->entries;
+    if (wait_infop != NULL) {
+        PosixOsQueueHeadInitializer(dq);
+        wait_infop->data = data;
+        wait_infop->winfo.ercd = ercd;
+        PosixOsQueueHeadConditionalRemove(&autosar_os_task_sync_queue, &dq, PosixOsTaskHasTargetId, &wait_infop->winfo.taskID);
+        PosixOsQueueHeadDoAction(&dq, PosixOsTaskWakeup, &ercd);
+        return true;
+    }
+    else {
+        return false;
+    }
 }
 
 
-static bool_t AutosarOsTaskIsTimeout(CMSIS_IMPL_QUEUE *entry, void *arg)
+static void PosixOsTaskSyncWaitInfoInit(PosixOsTaskWaitInfoType* winfop, uint32_t timeout, TaskType taskID)
 {
-  uint32_t curr = *((uint32_t*)arg);
-  AutosarOsTaskWaitInfoType *winfop = (AutosarOsTaskWaitInfoType *)entry;
-  if (winfop->timeout == AUTOSAR_OS_TASK_SYNC_WAIT_FOREVER) {
+    winfop->timeout = timeout;
+    winfop->stick = PosixOsTimeGetTickCount();
+    cmsis_impl_queue_initialize(&winfop->queue);
+    winfop->taskID = taskID;
+    winfop->ercd = E_OK;
+    pthread_cond_init(&winfop->cond, NULL);
+    return;
+}
+
+
+
+static void PosixOsTaskWakeup(CMSIS_IMPL_QUEUE* entry, void* arg)
+{
+    PosixOsTaskWaitInfoType* winfop = (PosixOsTaskWaitInfoType*)entry;
+    StatusType ercd = *((StatusType*)arg);
+    winfop->ercd = ercd;
+    pthread_cond_signal(&winfop->cond);
+    return;
+}
+
+static bool_t PosixOsTaskHasTargetId(CMSIS_IMPL_QUEUE* entry, void* arg)
+{
+    TaskType taskID = *((TaskType*)arg);
+    PosixOsTaskWaitInfoType* winfop = (PosixOsTaskWaitInfoType*)entry;
+    if (winfop->taskID == taskID) {
+        return true;
+    }
     return false;
-  }
-  if (AutosarOsTimeIsTimeout(curr, winfop->stick, winfop->expiretick)) {
-    return true;
-  }
-  return false;
-}
-
-static void AutosarOsTaskWakeup(CMSIS_IMPL_QUEUE *entry, void *arg)
-{
-  AutosarOsTaskWaitInfoType *winfop = (AutosarOsTaskWaitInfoType *)entry;
-  StatusType ercd = *((StatusType*)arg);
-  winfop->ercd = ercd;
-  (void)SetEvent(winfop->taskID, AutosarOsExtEvent);
-  return;
-}
-
-static bool_t AutosarOsTaskHasTargetId(CMSIS_IMPL_QUEUE *entry, void *arg)
-{
-  TaskType taskID = *((TaskType*)arg);
-  AutosarOsTaskWaitInfoType *winfop = (AutosarOsTaskWaitInfoType *)entry;
-  if (winfop->taskID == taskID) {
-    return true;
-  }
-  return false;
 }

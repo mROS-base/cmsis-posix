@@ -9,11 +9,11 @@ typedef struct {
   uint16_t			prealloc_num;
   uint16_t			entry_size;
   uint32_t			magicno;
-  AutosarOsQueueHeadType	used;
-  AutosarOsQueueHeadType	free;
-  AutosarOsQueueHeadType	getter_waiting;
-  AutosarOsQueueHeadType	putter_waiting;
-} AutosarOsMessageQueueType;
+  PosixOsQueueHeadType	used;
+  PosixOsQueueHeadType	free;
+  PosixOsQueueHeadType	getter_waiting;
+  PosixOsQueueHeadType	putter_waiting;
+} PosixOsMessageQueueType;
 
 
 typedef struct {
@@ -26,20 +26,20 @@ typedef struct {
    */
   uint16_t					prio;
   void						*data;
-} AutosarOsMessageQueueEntryType;
+} PosixOsMessageQueueEntryType;
 
 
 typedef struct {
   uint16_t 					prealloc_num;
   uint16_t 					entry_size;
-  AutosarOsMessageQueueEntryType   *control_datap;
+  PosixOsMessageQueueEntryType   *control_datap;
   void 	 					*entries_datap;
-} AutosarOsMessageQueueConfigType;
-extern AutosarOsMessageQueueType *AutosarOsMessageQueueCreate(AutosarOsMessageQueueConfigType *config);
-extern StatusType AutosarOsMessageQueueDelete(AutosarOsMessageQueueType *qh);
+} PosixOsMessageQueueConfigType;
+extern PosixOsMessageQueueType *PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType *config);
+extern StatusType PosixOsMessageQueueDelete(PosixOsMessageQueueType *qh);
 
-extern StatusType AutosarOsMessageQueueGet(AutosarOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout);
-extern StatusType AutosarOsMessageQueuePut(AutosarOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
-extern bool_t AutosarOsMessageQueueIsValid(AutosarOsMessageQueueType *qh);
+extern StatusType PosixOsMessageQueueGet(PosixOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout);
+extern StatusType PosixOsMessageQueuePut(PosixOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout);
+extern bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType *qh);
 
 #endif /* _CMSIS_AUTOSAR_OS_MESSAGE_QUEUE_H_ */

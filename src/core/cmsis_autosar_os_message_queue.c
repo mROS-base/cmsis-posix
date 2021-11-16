@@ -4,7 +4,7 @@
 #include "autosar_os_ext_common_private.h"
 #include <string.h>
 
-AutosarOsMessageQueueType *AutosarOsMessageQueueCreate(AutosarOsMessageQueueConfigType *config)
+PosixOsMessageQueueType *PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType *config)
 {
   uint32_t i;
   uint32_t entry_total_size;
@@ -12,26 +12,26 @@ AutosarOsMessageQueueType *AutosarOsMessageQueueCreate(AutosarOsMessageQueueConf
   char *top;
   char *entry_top;
   char *msg_top;
-  AutosarOsMessageQueueType *qh;
+  PosixOsMessageQueueType *qh;
 
-  entry_total_size = sizeof(AutosarOsMessageQueueEntryType) * config->prealloc_num;
+  entry_total_size = sizeof(PosixOsMessageQueueEntryType) * config->prealloc_num;
   msg_data_total_size = config->entry_size * config->prealloc_num;
 
-  top = AutosarOsMemoryAlloc(sizeof(AutosarOsMessageQueueType) + entry_total_size + msg_data_total_size);
+  top = PosixOsMemoryAlloc(sizeof(PosixOsMessageQueueType) + entry_total_size + msg_data_total_size);
   if (top == NULL) {
-    CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(AutosarOsMessageQueueType) + entry_total_size + msg_data_total_size);
+    CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(PosixOsMessageQueueType) + entry_total_size + msg_data_total_size);
     return NULL;
   }
-  qh = (AutosarOsMessageQueueType *)top;
+  qh = (PosixOsMessageQueueType *)top;
   qh->entry_size = config->entry_size;
   qh->prealloc_num = config->prealloc_num;
   qh->magicno = AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO;
-  AutosarOsQueueHeadInit(&qh->free);
-  AutosarOsQueueHeadInit(&qh->used);
-  AutosarOsQueueHeadInit(&qh->getter_waiting);
-  AutosarOsQueueHeadInit(&qh->putter_waiting);
+  PosixOsQueueHeadInit(&qh->free);
+  PosixOsQueueHeadInit(&qh->used);
+  PosixOsQueueHeadInit(&qh->getter_waiting);
+  PosixOsQueueHeadInit(&qh->putter_waiting);
 
-  entry_top = &top[sizeof(AutosarOsMessageQueueType)];
+  entry_top = &top[sizeof(PosixOsMessageQueueType)];
   msg_top = &entry_top[entry_total_size];
   /*
    *  [ queue memory image ]
@@ -39,17 +39,17 @@ AutosarOsMessageQueueType *AutosarOsMessageQueueCreate(AutosarOsMessageQueueConf
    *     qh     entry0 entry1   .................  entryN    msg0     msg1      ...................     msgN
    *   |------|------|------|------|------|------|------|----------|----------|----------|----------|----------|
    */
-  AutosarOsMessageQueueEntryType *entry = (AutosarOsMessageQueueEntryType*)entry_top;
+  PosixOsMessageQueueEntryType *entry = (PosixOsMessageQueueEntryType*)entry_top;
   for (i = 0; i < qh->prealloc_num; i++) {
     entry->prio = 0;
     entry->data = &msg_top[i * qh->entry_size];
-    AutosarOsQueueHeadAddTail(&qh->free,  &entry->queue);
+    PosixOsQueueHeadAddTail(&qh->free,  &entry->queue);
     entry++;
   }
   return qh;
 }
 
-StatusType AutosarOsMessageQueueDelete(AutosarOsMessageQueueType *qh)
+StatusType PosixOsMessageQueueDelete(PosixOsMessageQueueType *qh)
 {
   if (qh == NULL) {
     return E_OS_ID;
@@ -57,14 +57,14 @@ StatusType AutosarOsMessageQueueDelete(AutosarOsMessageQueueType *qh)
     return E_OS_ID;
   }
   qh->magicno = 0;
-  AutosarOsMemoryFree(qh);
+  PosixOsMemoryFree(qh);
   return E_OK;
 }
 
-StatusType AutosarOsMessageQueueGet(AutosarOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout)
+StatusType PosixOsMessageQueueGet(PosixOsMessageQueueType *qh, void *msg_ptr, uint8_t *msg_prio, uint32_t timeout)
 {
   StatusType ercd = E_OK;
-  AutosarOsMessageQueueEntryType *entry = NULL;
+  PosixOsMessageQueueEntryType *entry = NULL;
   TaskType taskID;
 
   if (qh->magicno != AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
@@ -80,16 +80,16 @@ StatusType AutosarOsMessageQueueGet(AutosarOsMessageQueueType *qh, void *msg_ptr
   }
 
   SuspendOSInterrupts();
-  entry = (AutosarOsMessageQueueEntryType*)AutosarOsQueueHeadRemoveFirst(&qh->used);
+  entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->used);
   if (entry == NULL) {
     if (timeout != 0) {
-      entry = (AutosarOsMessageQueueEntryType *)AutosarOsTaskSyncWait(&qh->getter_waiting, timeout, NULL, taskID);
+      entry = (PosixOsMessageQueueEntryType *)PosixOsTaskSyncWait(&qh->getter_waiting, timeout, NULL, taskID);
     }
   }
   if (entry != NULL) {
     memcpy(msg_ptr, entry->data, qh->entry_size);
-    if (!AutosarOsTaskSyncWakeupFirstEntry(&qh->putter_waiting, entry, E_OK)) {
-      AutosarOsQueueHeadAddTail(&qh->free, &entry->queue);
+    if (!PosixOsTaskSyncWakeupFirstEntry(&qh->putter_waiting, entry, E_OK)) {
+      PosixOsQueueHeadAddTail(&qh->free, &entry->queue);
     } else {
       /* nothing to do */
     }
@@ -99,15 +99,15 @@ StatusType AutosarOsMessageQueueGet(AutosarOsMessageQueueType *qh, void *msg_ptr
   ResumeOSInterrupts();
   return ercd;
 }
-bool_t AutosarOsMessageQueueIsValid(AutosarOsMessageQueueType *qh)
+bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType *qh)
 {
   return (qh->magicno == AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO);
 }
 
-StatusType AutosarOsMessageQueuePut(AutosarOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout)
+StatusType PosixOsMessageQueuePut(PosixOsMessageQueueType *qh, const void *msg_ptr, uint8_t msg_prio, uint32_t timeout)
 {
   StatusType ercd = E_OK;
-  AutosarOsMessageQueueEntryType *entry = NULL;
+  PosixOsMessageQueueEntryType *entry = NULL;
   TaskType taskID;
 
   if (qh->magicno != AUTOSAR_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
@@ -123,16 +123,16 @@ StatusType AutosarOsMessageQueuePut(AutosarOsMessageQueueType *qh, const void *m
   }
 
   SuspendOSInterrupts();
-  entry = (AutosarOsMessageQueueEntryType*)AutosarOsQueueHeadRemoveFirst(&qh->free);
+  entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->free);
   if (entry == NULL) {
     if (timeout != 0) {
-      entry = (AutosarOsMessageQueueEntryType*)AutosarOsTaskSyncWait(&qh->putter_waiting, timeout, NULL, taskID);
+      entry = (PosixOsMessageQueueEntryType*)PosixOsTaskSyncWait(&qh->putter_waiting, timeout, NULL, taskID);
     }
   }
   if (entry != NULL) {
     memcpy(entry->data, msg_ptr, qh->entry_size);
-    if (!AutosarOsTaskSyncWakeupFirstEntry(&qh->getter_waiting, entry, E_OK)) {
-      (void)AutosarOsQueueHeadAddTail(&qh->used, &entry->queue);
+    if (!PosixOsTaskSyncWakeupFirstEntry(&qh->getter_waiting, entry, E_OK)) {
+      (void)PosixOsQueueHeadAddTail(&qh->used, &entry->queue);
     } else {
       /* nothing to do */
     }

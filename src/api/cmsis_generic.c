@@ -4,14 +4,11 @@
 
 osStatus_t osDelay(uint32_t ticks)
 {
-  StatusType err;
-
-  if (CurrentContextIsISR()) {
-    return osErrorISR;
-  }
-  err = AutosarOsTaskSyncSleep(ticks);
-  if (err != E_OK) {
-    return osErrorISR;
-  }
-  return osOK;
+    if (CurrentContextIsISR()) {
+        return osErrorISR;
+    }
+    if (ticks == 0) {
+        return osErrorParameter;
+    }
+    return PosixOsThreadSyncWait(ticks);
 }
