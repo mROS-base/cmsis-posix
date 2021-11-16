@@ -19,7 +19,7 @@ PosixOsMessageQueueType* PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType
 
     top = PosixOsMemoryAlloc(sizeof(PosixOsMessageQueueType) + entry_total_size + msg_data_total_size);
     if (top == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(PosixOsMessageQueueType) + entry_total_size + msg_data_total_size);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%ld\n", __FILE__, __FUNCTION__, __LINE__, sizeof(PosixOsMessageQueueType) + entry_total_size + msg_data_total_size);
         return NULL;
     }
     qh = (PosixOsMessageQueueType*)top;

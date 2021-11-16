@@ -22,7 +22,7 @@ osMutexId_t osMutexNew(const osMutexAttr_t* attr)
     }
     mutex = (CmsisMutexType*)PosixOsMemoryAlloc(sizeof(CmsisMutexType));
     if (mutex == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(CmsisMutexType));
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%ld\n", __FILE__, __FUNCTION__, __LINE__, sizeof(CmsisMutexType));
         return NULL;
     }
     mutex->sem = osSemaphoreNew(1, 1, NULL);

@@ -45,7 +45,7 @@ osStatus_t osMessageQueueDelete(osMessageQueueId_t mq_id)
         return osErrorISR;
     }
     else if (qh == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
         return osErrorParameter;
     }
     PosixOsThreadSyncLock();
@@ -76,11 +76,11 @@ osStatus_t osMessageQueueGet(
         return osErrorParameter;
     }
     else if (qh == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
         return osErrorParameter;
     }
     else if (msg_ptr == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d msg_ptr is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, msg_ptr);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d msg_ptr is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, msg_ptr);
         return osErrorParameter;
     }
     else if (msg_prio != NULL) {
@@ -113,7 +113,7 @@ uint32_t osMessageQueueGetCount(osMessageQueueId_t mq_id)
 {
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
     if (qh == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
         return 0;
     }
     else if (!PosixOsMessageQueueIsValid(qh)) {
@@ -138,11 +138,11 @@ osStatus_t osMessageQueuePut(
         return osErrorParameter;
     }
     else if (qh == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
         return osErrorParameter;
     }
     else if (msg_ptr == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d msg_ptr is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, msg_ptr);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d msg_ptr is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, msg_ptr);
         return osErrorParameter;
     }
     else if (msg_prio != 0) {

@@ -17,7 +17,7 @@ osSemaphoreId_t osSemaphoreNew(uint32_t max_count, uint32_t initial_count, const
     }
     semp = (CmsisSemType*)PosixOsMemoryAlloc(sizeof(CmsisSemType));
     if (semp == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%d\n", __FILE__, __FUNCTION__, __LINE__, sizeof(CmsisSemType));
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d cannot allocate memory size=%ld\n", __FILE__, __FUNCTION__, __LINE__, sizeof(CmsisSemType));
         return NULL;
     }
     semp->count = initial_count;
@@ -79,7 +79,7 @@ osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
         return osErrorISR;
     }
     else if (semaphore_id == NULL) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d semaphore_id is invalid value(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, semaphore_id);
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d semaphore_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, semaphore_id);
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
