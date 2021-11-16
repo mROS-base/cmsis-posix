@@ -1,5 +1,5 @@
-#include "cmsis_autosar_os_memory.h"
-#include "autosar_os_ext_common_private.h"
+#include "cmsis_posix_os_memory.h"
+#include "posix_os_ext_common_private.h"
 #include <stdlib.h>
 
 void* PosixOsMemoryAlloc(uint32_t size)

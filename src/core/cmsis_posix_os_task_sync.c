@@ -1,6 +1,6 @@
-#include "cmsis_autosar_os_task_sync.h"
-#include "cmsis_autosar_os_time.h"
-#include "autosar_os_ext_common_private.h"
+#include "cmsis_posix_os_task_sync.h"
+#include "cmsis_posix_os_time.h"
+#include "posix_os_ext_common_private.h"
 
 typedef struct {
     CMSIS_IMPL_QUEUE	queue;

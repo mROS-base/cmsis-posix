@@ -1,5 +1,5 @@
 #include "cmsis_os.h"
-#include "autosar_os_ext_common_private.h"
+#include "posix_os_ext_common_private.h"
 
 typedef struct {
     osThreadFunc_t func;

@@ -1,7 +1,7 @@
 #include "cmsis_os.h"
-#include "autosar_os_ext_common_private.h"
-#include "cmsis_autosar_os_message_queue.h"
-#include "cmsis_autosar_os_task_sync.h"
+#include "posix_os_ext_common_private.h"
+#include "cmsis_posix_os_message_queue.h"
+#include "cmsis_posix_os_task_sync.h"
 #include <string.h>
 
 osMessageQueueId_t osMessageQueueNew(

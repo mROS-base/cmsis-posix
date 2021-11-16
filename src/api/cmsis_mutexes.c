@@ -1,8 +1,8 @@
 #include "cmsis_os.h"
-#include "cmsis_autosar_os_memory.h"
+#include "cmsis_posix_os_memory.h"
 #include "cmsis_semaphores_private.h"
-#include "autosar_os_ext_common_private.h"
-#include "cmsis_autosar_os_task_sync.h"
+#include "posix_os_ext_common_private.h"
+#include "cmsis_posix_os_task_sync.h"
 
 #define AUTOSAR_OSMUTEX_HEAD_MAGICNO		0xDEADEEEB
 typedef struct {

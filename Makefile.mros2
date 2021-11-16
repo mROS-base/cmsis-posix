@@ -1,5 +1,5 @@
 #
-# Makefile definition for autosar_os_ext stack
+# Makefile definition for posix_os_ext stack
 #
 
 AUTOSAR_OS_EXT_DIR := ../src
@@ -22,13 +22,13 @@ APPL_COBJS += cmsis_mutexes.o
 APPL_COBJS += cmsis_semaphores.o
 APPL_COBJS += cmsis_thread.o
 
-APPL_COBJS += cmsis_autosar_os_memory.o
-APPL_COBJS += cmsis_autosar_os_queue.o
-APPL_COBJS += cmsis_autosar_os_message_queue.o
-APPL_COBJS += cmsis_autosar_os_task_sync.o
-APPL_COBJS += cmsis_autosar_os_time.o
+APPL_COBJS += cmsis_posix_os_memory.o
+APPL_COBJS += cmsis_posix_os_queue.o
+APPL_COBJS += cmsis_posix_os_message_queue.o
+APPL_COBJS += cmsis_posix_os_task_sync.o
+APPL_COBJS += cmsis_posix_os_time.o
 
-APPL_COBJS += autosar_os.o
-#APPL_COBJS += autosar_os_ext_asp3_config.o
-#APPL_COBJS += autosar_os_ext_asp3_sys_config.o
-#APPL_COBJS += autosar_os_ext_sys_config.o
+APPL_COBJS += posix_os.o
+#APPL_COBJS += posix_os_ext_asp3_config.o
+#APPL_COBJS += posix_os_ext_asp3_sys_config.o
+#APPL_COBJS += posix_os_ext_sys_config.o

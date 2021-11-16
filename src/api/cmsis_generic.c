@@ -1,5 +1,5 @@
-#include "cmsis_autosar_os_task_sync.h"
-#include "autosar_os_ext_common_private.h"
+#include "cmsis_posix_os_task_sync.h"
+#include "posix_os_ext_common_private.h"
 
 osStatus_t osDelay(uint32_t ticks)
 {

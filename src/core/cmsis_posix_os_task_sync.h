@@ -1,8 +1,8 @@
 #ifndef _CMSIS_AUTOSAR_OS_TASK_SYNC_H_
 #define _CMSIS_AUTOSAR_OS_TASK_SYNC_H_
 
-#include "cmsis_autosar_os_queue.h"
-#include "cmsis_autosar_os_types.h"
+#include "cmsis_posix_os_queue.h"
+#include "cmsis_posix_os_types.h"
 #include "cmsis_os.h"
 
 extern osStatus_t PosixOsThreadSyncWait(uint32_t timeout);
