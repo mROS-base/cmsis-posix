@@ -9,7 +9,7 @@
 TestFwOperationType test_fw_operations[TEST_FW_OP_NUM] = {
   TEST_FW_OP_ENTRY(cmsis_kernel_test),
   TEST_FW_OP_ENTRY(cmsis_generic_test),
-//  TEST_FW_OP_ENTRY(cmsis_mutexes_test),
+  TEST_FW_OP_ENTRY(cmsis_mutexes_test),
   TEST_FW_OP_ENTRY(cmsis_semaphores_test),
 //  TEST_FW_OP_ENTRY(autosar_os_memory_test),
   TEST_FW_OP_ENTRY(cmsis_thread_test),

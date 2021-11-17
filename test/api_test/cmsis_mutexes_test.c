@@ -1,10 +1,8 @@
-#include "autosar_os_ext_common.h"
+#include "posix_os_ext_common_private.h"
 #include "cmsis_os.h"
 #include "autosar_os_ext_test.h"
 #include "autosar_os_ext_testfw.h"
-#include "autosar_os_ext_user_config.h"
 
-#include "cmsis_autosar_os_time.h"
 
 #define TEST_MUTEXES_DELAY_TIME_10ms		10U
 #define TEST_MUTEXES_DELAY_TIME_100ms		100U
@@ -34,57 +32,78 @@ static void test_Release_02(void);
 static void test_Release_03(void);
 
 typedef struct {
-  osMutexId_t id;
-  char* api_name;
+    osMutexId_t id;
+    char* api_name;
+    int thread_id;
 } TestAcquireInfoType;
+#define MAX_THREAD_NUM  4U
+static bool_t is_callback_activate[MAX_THREAD_NUM];
 
+static void start_callback(bool_t* active_status)
+{
+    *active_status = true;
+    return;
+}
+
+static void wait_for_end_callback(bool_t* active_status)
+{
+    while (true) {
+        if ((*active_status) == false) {
+            break;
+        }
+        else {
+            osDelay(100);
+        }
+    }
+    return;
+}
 #define TESTNAME "cmsis_mutexes_test"
 
 static int exec_cunt = 0U;
 
 static void test_exec(void (*exec_test_func)(void))
 {
-  exec_test_func();
-  exec_cunt++;
-  return;
+    exec_test_func();
+    exec_cunt++;
+    return;
 }
 
 void cmsis_mutexes_test_init(void)
 {
-  autosar_os_ext_testfw_start_test(TESTNAME);
-  return;
+    autosar_os_ext_testfw_start_test(TESTNAME);
+    return;
 }
 void cmsis_mutexes_test_end(void)
 {
-  autosar_os_ext_testfw_end_test();
-  return;
+    autosar_os_ext_testfw_end_test();
+    return;
 }
 
 void cmsis_mutexes_test_start(void)
 {
-  test_exec(test_New_01);
+    test_exec(test_New_01);
 
-  test_exec(test_Delete_01);
-  test_exec(test_Delete_02);
-  test_exec(test_Delete_03);
+    test_exec(test_Delete_01);
+    test_exec(test_Delete_02);
+    test_exec(test_Delete_03);
 
-  test_exec(test_Acquire_01);
-  test_exec(test_Acquire_02);
-  test_exec(test_Acquire_03);
-  test_exec(test_Acquire_04);
-  test_exec(test_Acquire_05);
-  test_exec(test_Acquire_06);
+    test_exec(test_Acquire_01);
+    test_exec(test_Acquire_02);
+    test_exec(test_Acquire_03);
+    test_exec(test_Acquire_04);
+    test_exec(test_Acquire_05);
+    test_exec(test_Acquire_06);
 
-  test_exec(test_Release_01);
-  test_exec(test_Release_02);
-  test_exec(test_Release_03);
+    test_exec(test_Release_01);
+    test_exec(test_Release_02);
+    test_exec(test_Release_03);
 
-  return;
+    return;
 }
 
 int cmsis_mutexes_test_get_exec_num(void)
 {
-  return exec_cunt;
+    return exec_cunt;
 }
 
 /*****************************************************************
@@ -93,110 +112,130 @@ int cmsis_mutexes_test_get_exec_num(void)
  *
  *****************************************************************/
 
-static void test_acquire_task_callback1(void *argp)
+static void test_acquire_task_callback1(void* argp)
 {
-  osStatus_t err;
-  TestAcquireInfoType* info;
+    osStatus_t err;
+    TestAcquireInfoType* info;
 
-  info = (TestAcquireInfoType*)argp;
-  err = osMutexAcquire(info->id, 0);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    info = (TestAcquireInfoType*)argp;
+    err = osMutexAcquire(info->id, 0);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  (void)osDelay(TEST_MUTEXES_DELAY_TIME_100ms);
+    (void)osDelay(TEST_MUTEXES_DELAY_TIME_100ms);
 
-  err = osMutexRelease(info->id);
-  TestAssertEq(info->api_name, 2, osOK, err);
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
 
-  return;
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
 
-static void test_acquire_task_callback2(void *argp)
+static void test_acquire_task_callback2(void* argp)
 {
-  osStatus_t err;
-  TestAcquireInfoType* info;
+    osStatus_t err;
+    TestAcquireInfoType* info;
 
-  info = (TestAcquireInfoType*)argp;
-  err = osMutexAcquire(info->id, osWaitForever);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    info = (TestAcquireInfoType*)argp;
+    err = osMutexAcquire(info->id, osWaitForever);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_M_TASK;
-  test_acquire_task_cunt++;
+    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
+    test_acquire_task_cunt++;
 
-  err = osMutexRelease(info->id);
-  TestAssertEq(info->api_name, 2, osOK, err);
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
 
-  return;
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
-static void test_acquire_task_callback5(void *argp)
+static void test_acquire_task_callback5(void* argp)
 {
-  osStatus_t err;
-  TestAcquireInfoType* info;
+    osStatus_t err;
+    TestAcquireInfoType* info;
 
-  info = (TestAcquireInfoType*)argp;
-  err = osMutexAcquire(info->id, TEST_MUTEXES_DELAY_TIME_200ms);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    info = (TestAcquireInfoType*)argp;
+    err = osMutexAcquire(info->id, TEST_MUTEXES_DELAY_TIME_200ms);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
-  test_acquire_task_cunt++;
+    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
+    test_acquire_task_cunt++;
 
-  err = osMutexRelease(info->id);
-  TestAssertEq(info->api_name, 2, osOK, err);
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
 
-  return;
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
 
-static void test_acquire_task_callback4(void *argp)
+static void test_acquire_task_callback4(void* argp)
 {
-  osStatus_t err;
-  TestAcquireInfoType* info;
+    osStatus_t err;
+    TestAcquireInfoType* info;
 
-  info = (TestAcquireInfoType*)argp;
-  err = osMutexAcquire(info->id, osWaitForever);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    info = (TestAcquireInfoType*)argp;
+    //printf("ack:callback4\n");
+    err = osMutexAcquire(info->id, osWaitForever);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
-  test_acquire_task_cunt++;
+    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
+    test_acquire_task_cunt++;
 
-  err = osMutexRelease(info->id);
-  TestAssertEq(info->api_name, 2, osOK, err);
+    osDelay(100);
 
-  return;
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
+    //printf("release:callback4\n");
+
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
-static void test_acquire_task_callback3(void *argp)
+static void test_acquire_task_callback3(void* argp)
 {
-  TestAcquireInfoType* info;
-  osStatus_t err;
+    TestAcquireInfoType* info;
+    TestAcquireInfoType info2;
+    osStatus_t err;
 
-  info = (TestAcquireInfoType*)argp;
-  autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier3, test_acquire_task_callback4);
-  (void)osThreadNew(AutosarOsTaskTestSupplier3_Body, (void*)info, NULL);
+    info = (TestAcquireInfoType*)argp;
+    info2 = *info;
+    info2.thread_id = 1;
+    start_callback(&is_callback_activate[info2.thread_id]);
+    (void)osThreadNew(test_acquire_task_callback4, (void*)&info2, NULL);
 
-  err = osMutexAcquire(info->id, osWaitForever);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    //printf("ack:callback3\n");
+    err = osMutexAcquire(info->id, osWaitForever);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_M_TASK;
-  test_acquire_task_cunt++;
+    osDelay(100);
+    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_H_TASK;
+    test_acquire_task_cunt++;
 
-  return;
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
+    //printf("release:callback3\n");
+
+    wait_for_end_callback(&is_callback_activate[info2.thread_id]);
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
-static void test_release_task_callback1(void *argp)
+static void test_release_task_callback1(void* argp)
 {
-  osStatus_t err;
-  TestAcquireInfoType* info;
+    osStatus_t err;
+    TestAcquireInfoType* info;
 
-  info = (TestAcquireInfoType*)argp;
-  err = osMutexAcquire(info->id, osWaitForever);
-  TestAssertEq(info->api_name, 1, osOK, err);
+    info = (TestAcquireInfoType*)argp;
+    err = osMutexAcquire(info->id, osWaitForever);
+    TestAssertEq(info->api_name, 1, osOK, err);
 
-  err = osMutexRelease(info->id);
-  TestAssertEq(info->api_name, 2, osOK, err);
+    err = osMutexRelease(info->id);
+    TestAssertEq(info->api_name, 2, osOK, err);
 
-  return;
+    is_callback_activate[info->thread_id] = false;
+    return;
 }
 
 /*****************************************************************
@@ -206,212 +245,220 @@ static void test_release_task_callback1(void *argp)
  *****************************************************************/
 static void test_New_01(void)
 {
-  char *api_name = "osMutexNew:No.1";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexNew:No.1";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre nothing
+    {
+        //pre nothing
+        //do
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    //do
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+        //done
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //done
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 2, osOK, err);
-
-    autosar_os_ext_testfw_clrfunc();
-  }
-  return;
+    }
+    return;
 }
 
 
 static void test_Delete_01(void)
 {
-  char *api_name = "osMutexDelete:No.1";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexDelete:No.1";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    //do
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 2, osOK, err);
+        //do
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //done
-    autosar_os_ext_testfw_clrfunc();
-  }
-  return;
+        //done
+    }
+    return;
 }
 
 
 static void test_Delete_02(void)
 {
-  char *api_name = "osMutexDelete:No.2";
-  osMutexId_t id;
-  osStatus_t err;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexDelete:No.2";
+    osMutexId_t id;
+    osStatus_t err;
+    TestAcquireInfoType info;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    info.api_name = "osMutexDelete:No.2:callback";
-    info.id = id;
+        info.api_name = "osMutexDelete:No.2:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_release_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
+        start_callback(&is_callback_activate[0]);
+        (void)osThreadNew(test_release_task_callback1, (void*)&info, NULL);
 
-    //do
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 3, osErrorResource, err);
+        //do
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 3, osErrorResource, err);
 
-    //done
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 4, osOK, err);
+        //done
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 4, osOK, err);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 5, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
-  return;
+        wait_for_end_callback(&is_callback_activate[0]);
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 5, osOK, err);
+    }
+    return;
 }
 
 
 static void test_Delete_03(void)
 {
-  char *api_name = "osMutexDelete:No.3";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexDelete:No.3";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 2, osOK, err);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //do
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 3, osErrorParameter, err);
+        //do
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 3, osErrorParameter, err);
 
-    //done
-    autosar_os_ext_testfw_clrfunc();
-  }
-  return;
+        //done
+    }
+    return;
 }
 
 
 static void test_Acquire_01(void)
 {
 
-  char *api_name = "osMutexAcquire:No.1";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexAcquire:No.1";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    //do
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
+        //do
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //done
+        //done
 
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osOK, err);
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osOK, err);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 4, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 4, osOK, err);
+    }
 
-  return;
+    return;
 }
 
 static void test_Acquire_02(void)
 {
 
-  char *api_name = "osMutexAcquire:No.2";
-  osMutexId_t id;
-  osStatus_t err;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexAcquire:No.2";
+    osMutexId_t id;
+    osStatus_t err;
+    TestAcquireInfoType info;
+    TestAcquireInfoType info2;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    info.api_name = "osMutexAcquire:No.2:callback";
-    info.id = id;
+        info.api_name = "osMutexAcquire:No.2:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_acquire_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier3, test_release_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier3_Body, (void*)&info, NULL);
+        info2 = info;
+        info2.thread_id = 1;
 
-    //do
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osErrorResource, err);
+        start_callback(&is_callback_activate[0]);
+        start_callback(&is_callback_activate[1]);
+        (void)osThreadNew(test_acquire_task_callback1, (void*)&info, NULL);
+        osDelay(10);
+        (void)osThreadNew(test_release_task_callback1, (void*)&info2, NULL);
 
-    //done
-    (void)osDelay(TEST_MUTEXES_DELAY_TIME_110ms);
+        //do
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osErrorResource, err);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 3, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        //done
+        wait_for_end_callback(&is_callback_activate[0]);
+        wait_for_end_callback(&is_callback_activate[1]);
 
-  return;
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 3, osOK, err);
+    }
+
+    return;
 }
 
 static void test_Acquire_03(void)
 {
 
-  char *api_name = "osMutexAcquire:No.3";
-  osMutexId_t id;
-  osStatus_t err;
-  uint32_t start_time, end_time;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexAcquire:No.3";
+    osMutexId_t id;
+    osStatus_t err;
+    uint32_t start_time, end_time;
+    TestAcquireInfoType info;
+    TestAcquireInfoType info2;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    info.api_name = "osMutexAcquire:No.3:callback";
-    info.id = id;
+        info.api_name = "osMutexAcquire:No.3:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_acquire_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier3, test_release_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier3_Body, (void*)&info, NULL);
+        info2 = info;
+        info2.thread_id = 1;
 
-    //do
-    start_time = osKernelGetTickCount();
-    err = osMutexAcquire(id, TEST_MUTEXES_DELAY_TIME_10ms);
-    end_time = osKernelGetTickCount();
-    TestAssertInRange(api_name, 2, TEST_MUTEXES_DELAY_TIME_10ms, TEST_MUTEXES_DELAY_TIME_10ms+1U, (end_time - start_time));
-    TestAssertEq(api_name, 3, osErrorTimeoutResource, err);
+        start_callback(&is_callback_activate[0]);
+        start_callback(&is_callback_activate[1]);
+        (void)osThreadNew(test_acquire_task_callback1, (void*)&info, NULL);
+        osDelay(10);
+        (void)osThreadNew(test_release_task_callback1, (void*)&info2, NULL);
 
-    //done
-    (void)osDelay(TEST_MUTEXES_DELAY_TIME_100ms);
+        //do
+        start_time = osKernelGetTickCount();
+        err = osMutexAcquire(id, TEST_MUTEXES_DELAY_TIME_10ms);
+        end_time = osKernelGetTickCount();
+        TestAssertInRange(api_name, 2, TEST_MUTEXES_DELAY_TIME_10ms, TEST_MUTEXES_DELAY_TIME_10ms + 1U, (end_time - start_time));
+        TestAssertEq(api_name, 3, osErrorTimeoutResource, err);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 4, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        //done
+        wait_for_end_callback(&is_callback_activate[0]);
+        wait_for_end_callback(&is_callback_activate[1]);
 
-  return;
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 4, osOK, err);
+    }
+
+    return;
 }
 
 
@@ -419,50 +466,56 @@ static void test_Acquire_03(void)
 static void test_Acquire_04(void)
 {
 
-  char *api_name = "osMutexAcquire:No.4";
-  osMutexId_t id;
-  osStatus_t err;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexAcquire:No.4";
+    osMutexId_t id;
+    osStatus_t err;
+    TestAcquireInfoType info;
+    TestAcquireInfoType info2;
 
-  {
-    //pre
-    test_acquire_task_cunt = 0;
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        test_acquire_task_cunt = 0;
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    info.api_name = "osMutexAcquire:No.4:callback";
-    info.id = id;
+        info.api_name = "osMutexAcquire:No.4:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
+        info2 = info;
+        info.thread_id = 1;
 
-    AutosarOsTimeIncTickCountSet((osWaitForever - 10U));
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_acquire_task_callback5);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
+        //AutosarOsTimeIncTickCountSet((osWaitForever - 10U));
 
-    //do
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier3, test_acquire_task_callback2);
-    (void)osThreadNew(AutosarOsTaskTestSupplier3_Body, (void*)&info, NULL);
-    (void)osDelay(TEST_MUTEXES_DELAY_TIME_100ms);
+        start_callback(&is_callback_activate[0]);
+        start_callback(&is_callback_activate[1]);
+        (void)osThreadNew(test_acquire_task_callback5, (void*)&info, NULL);
 
-    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_L_TASK;
-    test_acquire_task_cunt++;
+        //do
+        (void)osThreadNew(test_acquire_task_callback2, (void*)&info2, NULL);
+        (void)osDelay(TEST_MUTEXES_DELAY_TIME_100ms);
 
-    //done
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osOK, err);
+        test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_L_TASK;
+        test_acquire_task_cunt++;
 
-    TestAssertEq(api_name, 4, TEST_ACQUIRE_L_TASK, test_acquire_task_waekup[0]);
-    TestAssertEq(api_name, 5, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[1]);
-    TestAssertEq(api_name, 6, TEST_ACQUIRE_M_TASK, test_acquire_task_waekup[2]);
+        //done
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osOK, err);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 7, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        wait_for_end_callback(&is_callback_activate[0]);
+        wait_for_end_callback(&is_callback_activate[1]);
+        TestAssertEq(api_name, 4, TEST_ACQUIRE_L_TASK, test_acquire_task_waekup[0]);
+        TestAssertEq(api_name, 5, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[1]);
+        TestAssertEq(api_name, 6, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[2]);
 
-  return;
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 7, osOK, err);
+    }
+
+    return;
 }
 
 
@@ -470,68 +523,74 @@ static void test_Acquire_04(void)
 static void test_Acquire_05(void)
 {
 
-  char *api_name = "osMutexAcquire:No.5";
-  osMutexId_t id;
-  osStatus_t err;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexAcquire:No.5";
+    osMutexId_t id;
+    osStatus_t err;
+    TestAcquireInfoType info;
 
-  {
-    //pre
-    test_acquire_task_cunt = 0;
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        test_acquire_task_cunt = 0;
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    info.api_name = "osMutexAcquire:No.5:callback";
-    info.id = id;
+        info.api_name = "osMutexAcquire:No.5:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    //do
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_acquire_task_callback3);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
 
-    test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_L_TASK;
-    test_acquire_task_cunt++;
+        //do
+        //printf("ack:test\n");
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
+        start_callback(&is_callback_activate[0]);
+        (void)osThreadNew(test_acquire_task_callback3, (void*)&info, NULL);
 
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osOK, err);
+        osDelay(300);
 
-    TestAssertEq(api_name, 4, TEST_ACQUIRE_L_TASK, test_acquire_task_waekup[0U]);
-    TestAssertEq(api_name, 5, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[1U]);
-    TestAssertEq(api_name, 6, TEST_ACQUIRE_M_TASK, test_acquire_task_waekup[2U]);
+        test_acquire_task_waekup[test_acquire_task_cunt] = TEST_ACQUIRE_L_TASK;
+        test_acquire_task_cunt++;
 
-    //done
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 7, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osOK, err);
+        //printf("release:test\n");
 
-  return;
+        wait_for_end_callback(&is_callback_activate[0]);
+        wait_for_end_callback(&is_callback_activate[1]);
+        TestAssertEq(api_name, 4, TEST_ACQUIRE_L_TASK, test_acquire_task_waekup[0U]);
+        TestAssertEq(api_name, 5, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[1U]);
+        TestAssertEq(api_name, 6, TEST_ACQUIRE_H_TASK, test_acquire_task_waekup[2U]);
+
+        //done
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 7, osOK, err);
+    }
+
+    return;
 }
 
 static void test_Acquire_06(void)
 {
 
-  char *api_name = "osMutexAcquire:No.6";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexAcquire:No.6";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 2, osOK, err);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //do
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 3, osErrorParameter, err);
+        //do
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 3, osErrorParameter, err);
 
-    //done
-    autosar_os_ext_testfw_clrfunc();
-  }
+        //done
+    }
 
-  return;
+    return;
 }
 
 
@@ -540,92 +599,91 @@ static void test_Acquire_06(void)
 static void test_Release_01(void)
 {
 
-  char *api_name = "osMutexRelease:No.1";
-  osMutexId_t id;
-  osStatus_t err;
-  TestAcquireInfoType info;
+    char* api_name = "osMutexRelease:No.1";
+    osMutexId_t id;
+    osStatus_t err;
+    TestAcquireInfoType info;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    info.api_name = "osMutexRelease:No.1:callback";
-    info.id = id;
+        info.api_name = "osMutexRelease:No.1:callback";
+        info.id = id;
+        info.thread_id = 0;
 
-    autosar_os_ext_testfw_setfunc(AutosarOsTaskTestSupplier2, test_release_task_callback1);
-    (void)osThreadNew(AutosarOsTaskTestSupplier2_Body, (void*)&info, NULL);
+        start_callback(&is_callback_activate[0]);
+        (void)osThreadNew(test_release_task_callback1, (void*)&info, NULL);
+        osDelay(100);
 
-    //do
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osOK, err);
+        //do
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osOK, err);
 
-    //done
+        //done
+        wait_for_end_callback(&is_callback_activate[0]);
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 4, osOK, err);
+    }
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 4, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
-
-  return;
+    return;
 }
 
 static void test_Release_02(void)
 {
 
-  char *api_name = "osMutexRelease:No.2";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexRelease:No.2";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    err = osMutexAcquire(id, 0);
-    TestAssertEq(api_name, 2, osOK, err);
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osOK, err);
+        err = osMutexAcquire(id, 0);
+        TestAssertEq(api_name, 2, osOK, err);
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osOK, err);
 
-    //do
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 4, osErrorResource, err);
+        //do
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 4, osErrorResource, err);
 
-    //done
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 5, osOK, err);
-    autosar_os_ext_testfw_clrfunc();
-  }
+        //done
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 5, osOK, err);
+    }
 
-  return;
+    return;
 }
 
 static void test_Release_03(void)
 {
 
-  char *api_name = "osMutexRelease:No.3";
-  osMutexId_t id;
-  osStatus_t err;
+    char* api_name = "osMutexRelease:No.3";
+    osMutexId_t id;
+    osStatus_t err;
 
-  {
-    //pre
-    id = osMutexNew(NULL);
-    TestAssertNotEq(api_name, 1, id, NULL);
+    {
+        //pre
+        id = osMutexNew(NULL);
+        TestAssertNotEq(api_name, 1, id, NULL);
 
-    err = osMutexDelete(id);
-    TestAssertEq(api_name, 2, osOK, err);
+        err = osMutexDelete(id);
+        TestAssertEq(api_name, 2, osOK, err);
 
-    //do
-    err = osMutexRelease(id);
-    TestAssertEq(api_name, 3, osErrorParameter, err);
+        //do
+        err = osMutexRelease(id);
+        TestAssertEq(api_name, 3, osErrorParameter, err);
 
-    //done
+        //done
 
-    autosar_os_ext_testfw_clrfunc();
-  }
+    }
 
-  return;
+    return;
 }

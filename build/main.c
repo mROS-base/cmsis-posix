@@ -41,5 +41,9 @@ int main(int argc, const char* argv[])
 	cmsis_semaphores_test_init();
 	cmsis_semaphores_test_start();
 	cmsis_semaphores_test_end();
+
+	cmsis_mutexes_test_init();
+	cmsis_mutexes_test_start();
+	cmsis_mutexes_test_end();
 	return 0;
 }

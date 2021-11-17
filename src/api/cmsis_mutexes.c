@@ -133,7 +133,6 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    PosixOsThreadSyncLock();
     if (mutex->count == 0) {
         err = osSemaphoreDelete(mutex->sem);
         if (err == osOK) {
@@ -144,7 +143,6 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
     else {
         err = osErrorResource;
     }
-    PosixOsThreadSyncUnlock();
     return err;
 }
 
