@@ -149,7 +149,6 @@ static void test_put_02(void)
 #endif
 static void test_put_task_callback1(void* argp)
 {
-    printf("test_put_task_callback1:enter\n");
     char* api_name = "osMessageQueuePut:task_callback1";
     int msg_data = 11;
     osMessageQueueId_t msgq_id = (osMessageQueueId_t)argp;
@@ -157,12 +156,10 @@ static void test_put_task_callback1(void* argp)
 
     osStatus err = osMessageQueuePut(msgq_id, (void*)&msg_data, 0, osWaitForever);
     TestAssertEq(api_name, 3, osOK, err);
-    printf("test_put_task_callback1:put end:err=%d\n", err);
     return;
 }
 static void test_put_task_callback2(void* argp)
 {
-    printf("test_put_task_callback2:enter\n");
     char* api_name = "osMessageQueuePut:task_callback2";
     int msg_data = 12;
     osMessageQueueId_t msgq_id = (osMessageQueueId_t)argp;
@@ -170,12 +167,10 @@ static void test_put_task_callback2(void* argp)
 
     osStatus err = osMessageQueuePut(msgq_id, (void*)&msg_data, 0, osWaitForever);
     TestAssertEq(api_name, 3, osOK, err);
-    printf("test_put_task_callback2:put end:err=%d\n", err);
     return;
 }
 static void test_put_task_callback3(void* argp)
 {
-    printf("test_put_task_callback3:enter\n");
     char* api_name = "osMessageQueuePut:task_callback3";
     int msg_data = 13;
     osMessageQueueId_t msgq_id = (osMessageQueueId_t)argp;
@@ -183,7 +178,6 @@ static void test_put_task_callback3(void* argp)
 
     osStatus err = osMessageQueuePut(msgq_id, (void*)&msg_data, 0, osWaitForever);
     TestAssertEq(api_name, 3, osOK, err);
-    printf("test_put_task_callback3:put end:err=%d\n", err);
     return;
 }
 

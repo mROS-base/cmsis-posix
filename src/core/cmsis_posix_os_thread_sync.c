@@ -105,6 +105,9 @@ void* PosixOsThreadSyncWait(PosixOsQueueHeadType* waiting_queue, uint32_t timeou
         if ((err != 0) && (err != ETIMEDOUT)) {
             *ercdp = osError; //TODO
         }
+        else if (err == ETIMEDOUT) {
+            *ercdp = osErrorTimeoutResource;
+        }
         else {
             *ercdp = wait_info.winfo.ercd;
         }

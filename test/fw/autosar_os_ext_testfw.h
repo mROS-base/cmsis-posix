@@ -75,7 +75,7 @@ typedef struct {
   int (*get_exec_num) (void);
 } TestFwOperationType;
 
-#define TEST_FW_OP_NUM	2U
+#define TEST_FW_OP_NUM	5U
 extern TestFwOperationType test_fw_operations[TEST_FW_OP_NUM];
 
 #define TEST_FW_OP_ENTRY(name)	\
