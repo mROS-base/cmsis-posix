@@ -68,11 +68,12 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
     PosixOsMessageQueueEntryType* entry = NULL;
     //printf("PosixOsMessageQueueGet():enter\n");
 
+    PosixOsThreadSyncLock();
     if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
         return osErrorParameter;
     }
-    PosixOsThreadSyncLock();
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->used);
     if (entry == NULL) {
         if (timeout != 0) {
@@ -107,11 +108,12 @@ osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType* qh, const void* msg_p
     osStatus_t ercd = osOK;
     PosixOsMessageQueueEntryType* entry = NULL;
 
+    PosixOsThreadSyncLock();
     if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
         return osErrorParameter;
     }
-    PosixOsThreadSyncLock();
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->free);
     if (entry == NULL) {
         if (timeout != 0) {
