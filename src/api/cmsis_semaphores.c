@@ -38,16 +38,17 @@ osStatus_t osSemaphoreAcquire(osSemaphoreId_t semaphore_id, uint32_t timeout)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
+    PosixOsThreadSyncLock();
     if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         return osErrorParameter;
     }
     if (is_ctx_isr) {
         if (timeout != 0) {
+            PosixOsThreadSyncUnlock();
             return osErrorResource;
         }
     }
-
-    PosixOsThreadSyncLock();
     err = osSemaphoreAcquire_nolock(semp, timeout);
     PosixOsThreadSyncUnlock();
     return err;
@@ -62,10 +63,11 @@ osStatus_t osSemaphoreRelease(osSemaphoreId_t semaphore_id)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
+    PosixOsThreadSyncLock();
     if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         return osErrorParameter;
     }
-    PosixOsThreadSyncLock();
     err = osSemaphoreRelease_nolock(semp);
     PosixOsThreadSyncUnlock();
     return err;
@@ -83,11 +85,12 @@ osStatus_t osSemaphoreDelete(osSemaphoreId_t semaphore_id)
         return osErrorParameter;
     }
     semp = (CmsisSemType*)semaphore_id;
+    PosixOsThreadSyncLock();
     if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, semp->magicno);
         return osErrorParameter;
     }
-    PosixOsThreadSyncLock();
     if (semp->waiting.count == 0) {
         semp->magicno = 0;
         PosixOsMemoryFree(semp);
@@ -165,10 +168,11 @@ int32_t osSemaphoreWait(osSemaphoreId semaphore_id, uint32_t millisec)
         return -1;
     }
     semp = (CmsisSemType*)semaphore_id;
+    PosixOsThreadSyncLock();
     if (semp->magicno != POSIX_OSSEM_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         return -1;
     }
-    PosixOsThreadSyncLock();
     err = osSemaphoreAcquire_nolock(semp, millisec);
     PosixOsThreadSyncUnlock();
     if (err != osOK) {

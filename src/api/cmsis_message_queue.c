@@ -113,16 +113,21 @@ osStatus_t osMessageQueueGet(
 
 uint32_t osMessageQueueGetCount(osMessageQueueId_t mq_id)
 {
+    uint32_t count = 0;
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
     if (qh == NULL) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d mq_id is invalid value(%p)\n", __FILE__, __FUNCTION__, __LINE__, mq_id);
         return 0;
     }
-    else if (!PosixOsMessageQueueIsValid(qh)) {
-        CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
-        return 0;
+    PosixOsThreadSyncLock();
+    if (PosixOsMessageQueueIsValid(qh)) {
+        count = qh->used.count;
     }
-    return qh->used.count;
+    else {
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno=%d\n", __FILE__, __FUNCTION__, __LINE__, qh->magicno);
+    }
+    PosixOsThreadSyncUnlock();
+    return count;
 }
 
 osStatus_t osMessageQueuePut(

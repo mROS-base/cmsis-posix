@@ -56,13 +56,14 @@ osStatus_t osMutexAcquire(osMutexId_t mutex_id, uint32_t timeout)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid mutex_id(NULL)\n", __FILE__, __FUNCTION__, __LINE__);
         return osErrorParameter;
     }
+    thread_id = pthread_self();
     mutex = (CmsisMutexType*)mutex_id;
+    PosixOsThreadSyncLock();
     if (mutex->magicno != AUTOSAR_OSMUTEX_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    thread_id = pthread_self();
-    PosixOsThreadSyncLock();
     if ((mutex->is_recursive) && (mutex->count > 0) && (mutex->owner == thread_id)) {
         mutex->count++;
     }
@@ -91,13 +92,14 @@ osStatus_t osMutexRelease(osMutexId_t mutex_id)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid mutex_id(NULL)\n", __FILE__, __FUNCTION__, __LINE__);
         return osErrorParameter;
     }
+    thread_id = pthread_self();
     mutex = (CmsisMutexType*)mutex_id;
+    PosixOsThreadSyncLock();
     if (mutex->magicno != AUTOSAR_OSMUTEX_HEAD_MAGICNO) {
+        PosixOsThreadSyncUnlock();
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
         return osErrorParameter;
     }
-    thread_id = pthread_self();
-    PosixOsThreadSyncLock();
     if (mutex->owner == thread_id) {
         if ((mutex->is_recursive) && (mutex->count > 1)) {
             mutex->count--;
@@ -128,20 +130,23 @@ osStatus_t osMutexDelete(osMutexId_t mutex_id)
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid mutex_id(NULL)\n", __FILE__, __FUNCTION__, __LINE__);
         return osErrorParameter;
     }
+    PosixOsThreadSyncLock();
     mutex = (CmsisMutexType*)mutex_id;
     if (mutex->magicno != AUTOSAR_OSMUTEX_HEAD_MAGICNO) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d invalid magicno(0x%x)\n", __FILE__, __FUNCTION__, __LINE__, mutex->magicno);
-        return osErrorParameter;
+        err = osErrorParameter;
     }
-    if (mutex->count == 0) {
-        err = osSemaphoreDelete(mutex->sem);
-        if (err == osOK) {
-            mutex->magicno = 0;
-            PosixOsMemoryFree(mutex);
-        }
+    else if (mutex->count == 0) {
+        mutex->magicno = 0;
     }
     else {
         err = osErrorResource;
+    }
+    PosixOsThreadSyncUnlock();
+
+    if (err == osOK) {
+        (void)osSemaphoreDelete(mutex->sem);
+        PosixOsMemoryFree(mutex);
     }
     return err;
 }
