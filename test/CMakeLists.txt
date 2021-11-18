@@ -29,3 +29,4 @@ target_include_directories(
 
 target_link_libraries(cmsis-test cmsis pthread GTest::GTest)
 
+gtest_add_tests(TARGET cmsis-test)

@@ -6,6 +6,7 @@ project(cmsis-posix-project
     DESCRIPTION "cmsis-posix"
     LANGUAGES C CXX
 )
+enable_testing()
 
 add_compile_definitions(OS_POSIX)
 include_directories("${PROJECT_SOURCE_DIR}/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2")
