@@ -16,6 +16,8 @@ add_executable(cmsis-test
 	api/cmsis_generic_test.cpp
 	api/cmsis_thread_test.cpp
 	api/cmsis_message_queue_test.cpp
+	api/cmsis_mutexes_test.cpp
+	api/cmsis_semaphores_test.cpp
 )
 
 target_include_directories(

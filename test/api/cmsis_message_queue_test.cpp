@@ -2,8 +2,6 @@
 #include "cmsis_os.h"
 #include "api_test_utils.h"
 
-#define MAX_THREAD_NUM  5
-
 class MessageQueueTest : public ::testing::Test {
 protected:
     static void SetUpTestCase() {
@@ -13,26 +11,12 @@ protected:
     }
 
     virtual void SetUp() {
-        thread_num = 0;
-        for (int i = 0; i < MAX_THREAD_NUM; i++) {
-            thread_id[i] = NULL;
-        }
     }
 
     virtual void TearDown() {
-        for (int i = 0; i < MAX_THREAD_NUM; i++) {
-            if (thread_id[i] != NULL) {
-                osStatus_t ret = osThreadJoin(thread_id[i]);
-                EXPECT_EQ(osOK, ret);
-            }
-        }
     }
 
-    int thread_num;
-    osThreadDef_t thrdef[MAX_THREAD_NUM];
-    osThreadId thread_id[MAX_THREAD_NUM];
 };
-//static char* test_expect_string[MAX_THREAD_NUM];
 typedef struct {
     osMessageQueueId_t msgq_id;
     int expect_value;
