@@ -1,5 +1,6 @@
 #include "cmsis_os.h"
 #include "cmsis_posix_os_memory.h"
+#include "cmsis_posix_os_types.h"
 
 typedef struct {
     osThreadFunc_t func;
