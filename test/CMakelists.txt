@@ -11,14 +11,8 @@ find_package(GTest REQUIRED)
 include(GoogleTest)
 
 add_executable(cmsis-test 
-	api_test/main.cpp
-	api_test/cmsis_thread_test.c
-	api_test/cmsis_generic_test.c
-	api_test/cmsis_kernel_test.c
-	api_test/cmsis_message_queue_test.c
-	api_test/cmsis_semaphores_test.c
-	api_test/cmsis_mutexes_test.c
-	fw/autosar_os_ext_testfw.c
+	api/main.cpp
+	api/cmsis_kernel_test.cpp
 )
 
 target_include_directories(
