@@ -15,7 +15,8 @@ protected:
     }
 
     virtual void TearDown() {
-        osThreadJoin(thread_id);
+        osStatus_t ret = osThreadJoin(thread_id);
+        EXPECT_EQ(osOK, ret);
     }
 
     osThreadDef_t thrdef;
@@ -62,6 +63,6 @@ TEST_F(ThreadTest, osThreadTerminate_01)
     thread_id = osThreadNew(test_thread_task_terminate, (void*)"osThreadTerminate_Test01", NULL);
     EXPECT_TRUE(thread_id != NULL);
 
-    EXPECT_EQ(test_thread_task_terminate_check, false);
+    EXPECT_EQ(false, test_thread_task_terminate_check);
     return;
 }
