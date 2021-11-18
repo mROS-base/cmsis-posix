@@ -37,5 +37,4 @@ message(STATUS "BUILD_TYPE " ${BUILD_TYPE})
 message(STATUS "GCOV " ${GCOV})
 
 add_subdirectory(src)
-add_subdirectory(Third_Party)
 add_subdirectory(test)
