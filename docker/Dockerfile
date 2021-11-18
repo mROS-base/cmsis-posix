@@ -37,7 +37,7 @@ RUN chgrp tmori /home/tmori/.ssh/*
 USER tmori
 WORKDIR /home/tmori
 RUN ssh -o StrictHostKeyChecking=no -T git@github.com || true
-RUN git clone --recursive git@github.com:esm-tmori/cmsis-posix.git
+RUN git clone git@github.com:esm-tmori/cmsis-posix.git
 WORKDIR /home/tmori/cmsis-posix/cmake-build
 RUN cmake -D debug=true ..
 RUN make
