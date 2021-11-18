@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include "cmsis_os.h"
 #include "autosar_os_ext_test.h"
+#include "gtest/gtest.h"
 
-int main(int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
+	::testing::InitGoogleTest(&argc, argv);
 	osKernelStart();
+	return RUN_ALL_TESTS();
+#if 0
 
 	cmsis_thread_test_init();
 	cmsis_thread_test_start();
@@ -30,4 +34,5 @@ int main(int argc, const char* argv[])
 	cmsis_mutexes_test_start();
 	cmsis_mutexes_test_end();
 	return 0;
+#endif
 }
