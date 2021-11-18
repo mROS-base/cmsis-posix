@@ -14,6 +14,7 @@ add_executable(cmsis-test
 	api/main.cpp
 	api/cmsis_kernel_test.cpp
 	api/cmsis_generic_test.cpp
+	api/cmsis_thread_test.cpp
 )
 
 target_include_directories(

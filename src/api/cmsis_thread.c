@@ -51,7 +51,21 @@ osStatus_t osThreadTerminate(osThreadId_t thread_id)
     pthread_exit(NULL);
     return osOK;
 }
-
+osStatus_t osThreadJoin(osThreadId_t thread_id)
+{
+    if (CurrentContextIsISR()) {
+        return osErrorISR;
+    }
+    if (thread_id == NULL) {
+        return osErrorParameter;
+    }
+    int ret = pthread_join((pthread_t)thread_id, NULL);
+    if (ret != 0) {
+        CMSIS_IMPL_ERROR("ERROR:%s %s() %d pthread_join() error=%d\n", __FILE__, __FUNCTION__, __LINE__, errno);
+        return osErrorResource;
+    }
+    return osOK;
+}
 /*
  * Version 1
  */
