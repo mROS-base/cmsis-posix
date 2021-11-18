@@ -1,7 +1,6 @@
 #ifndef _CMSIS_SEMAPHORES_PRIVATE_H_
 #define _CMSIS_SEMAPHORES_PRIVATE_H_
 
-#include "cmsis_os.h"
 #include "cmsis_posix_os_queue.h"
 #define POSIX_OSSEM_HEAD_MAGICNO		0xDEADBEED
 typedef struct {

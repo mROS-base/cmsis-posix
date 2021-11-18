@@ -1,4 +1,3 @@
-#include "posix_os_ext_common_private.h"
 #include "cmsis_os.h"
 #include "autosar_os_ext_test.h"
 #include "autosar_os_ext_testfw.h"

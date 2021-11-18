@@ -1,7 +1,7 @@
 #ifndef _CMSIS_POSIX_OS_MEMORY_H_
 #define _CMSIS_POSIX_OS_MEMORY_H_
 
-#include "posix_os_ext_common_private.h"
+#include "cmsis_os.h"
 
 extern void *PosixOsMemoryAlloc(uint32_t size);
 extern void PosixOsMemoryFree(void *addrp);

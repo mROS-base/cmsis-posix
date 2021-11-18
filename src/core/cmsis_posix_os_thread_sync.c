@@ -1,6 +1,5 @@
 #include "cmsis_posix_os_thread_sync.h"
 #include "cmsis_posix_os_time.h"
-#include "posix_os_ext_common_private.h"
 
 typedef struct {
     CMSIS_IMPL_QUEUE	queue;

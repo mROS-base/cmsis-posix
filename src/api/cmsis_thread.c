@@ -1,5 +1,4 @@
 #include "cmsis_os.h"
-#include "posix_os_ext_common_private.h"
 #include "cmsis_posix_os_memory.h"
 
 typedef struct {

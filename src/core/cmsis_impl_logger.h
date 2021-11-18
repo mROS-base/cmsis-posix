@@ -1,9 +1,10 @@
 #ifndef _CMSIS_IMPL_LOGGER_H_
 #define _CMSIS_IMPL_LOGGER_H_
 
+#include "cmsis_impl_types.h"
+
 #ifdef CMSIS_LOG_DISABLE_DEBUG
 #else
-#ifdef OS_POSIX
 #include <stdio.h>
 #define syslog(flg, ...) \
 	do {	\
@@ -12,9 +13,6 @@
 		printf(__VA_ARGS__);	\
 		printf("\n");	\
 	} while (0)
-#else
-#include "t_syslog.h"
-#endif
 #endif
 
 /*

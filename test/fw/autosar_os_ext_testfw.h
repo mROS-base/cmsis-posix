@@ -1,7 +1,7 @@
 #ifndef _AUTOSAR_OS_EXT_TESTFW_H_
 #define _AUTOSAR_OS_EXT_TESTFW_H_
 
-#include "posix_os_ext_common_private.h"
+#include "cmsis_os.h"
 #include <string.h>
 
 extern void autosar_os_ext_testfw_start_test(const char* name);

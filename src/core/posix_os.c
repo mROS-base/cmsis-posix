@@ -1,4 +1,4 @@
-#include "posix_os_ext_common_private.h"
+#include "cmsis_os.h"
 
 
 bool_t CurrentContextIsISR(void)
