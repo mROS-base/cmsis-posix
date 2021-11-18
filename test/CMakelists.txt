@@ -1,0 +1,24 @@
+cmake_minimum_required(VERSION ${MY_CMAKE_VERSION})
+
+project(cmsis-posix-project)
+
+link_directories(../src)
+
+add_executable(cmsis-test 
+	api_test/main.c
+	api_test/cmsis_thread_test.c
+	api_test/cmsis_generic_test.c
+	api_test/cmsis_kernel_test.c
+	api_test/cmsis_message_queue_test.c
+	api_test/cmsis_semaphores_test.c
+	api_test/cmsis_mutexes_test.c
+	fw/autosar_os_ext_testfw.c
+)
+
+target_include_directories(
+	cmsis-test 
+	PRIVATE ${PROJECT_SOURCE_DIR}/api_test
+	PRIVATE ${PROJECT_SOURCE_DIR}/fw
+)
+
+target_link_libraries(cmsis-test cmsis pthread)
