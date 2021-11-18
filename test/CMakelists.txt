@@ -13,6 +13,7 @@ include(GoogleTest)
 add_executable(cmsis-test 
 	api/main.cpp
 	api/cmsis_kernel_test.cpp
+	api/cmsis_generic_test.cpp
 )
 
 target_include_directories(
@@ -23,3 +24,4 @@ target_include_directories(
 )
 
 target_link_libraries(cmsis-test cmsis pthread GTest::GTest)
+
