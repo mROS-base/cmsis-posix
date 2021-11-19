@@ -60,7 +60,10 @@ TEST_F(ThreadTest, osThreadNew_01)
 TEST_F(ThreadTest, osThreadTerminate_01)
 {
     test_expect_string = (char*)"osThreadTerminate_Test01";
-    thread_id = osThreadNew(test_thread_task_terminate, (void*)"osThreadTerminate_Test01", NULL);
+
+    osThreadAttr_t attr;
+    attr.priority = osPriorityNormal;
+    thread_id = osThreadNew(test_thread_task_terminate, (void*)"osThreadTerminate_Test01", &attr);
     EXPECT_TRUE(thread_id != NULL);
 
     EXPECT_EQ(false, test_thread_task_terminate_check);

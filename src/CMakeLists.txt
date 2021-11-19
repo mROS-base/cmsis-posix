@@ -23,4 +23,5 @@ target_include_directories(
 	PUBLIC ${PROJECT_SOURCE_DIR}/include
 	PRIVATE ${PROJECT_SOURCE_DIR}/api
 	PRIVATE ${PROJECT_SOURCE_DIR}/core
+	PRIVATE ${PROJECT_SOURCE_DIR}/config
 )
