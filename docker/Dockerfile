@@ -23,7 +23,7 @@ RUN apt update
 RUN apt upgrade
 
 RUN apt-get install -y cmake
-RUN apt-get install -y libgtest-dev 
+RUN apt-get install -y libgtest-dev lcov
 
 RUN useradd -ms /bin/bash tmori
 RUN mkdir /home/tmori/.ssh
