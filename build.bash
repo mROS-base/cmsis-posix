@@ -41,7 +41,12 @@ then
 	exit 0
 fi
 
-cmake -D debug=true -D gcov=true ..
+if [ ${OPT} = "test" ]
+then
+	cmake -D test=true -D debug=true -D gcov=true ..
+else
+	cmake -D debug=true -D gcov=true ..
+fi
 make
 
 if [ ${OPT} = "test" ]
