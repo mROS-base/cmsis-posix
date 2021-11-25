@@ -19,6 +19,7 @@ protected:
 };
 typedef struct {
     osMessageQueueId_t msgq_id;
+    uint32_t timeout;
     int expect_value;
 } ThreadArgType;
 
@@ -28,7 +29,7 @@ static void test_thread_task(void* argp)
     ThreadArgType* targp = (ThreadArgType*)argp;
     EXPECT_TRUE(targp->msgq_id != NULL);
 
-    osStatus_t err = osMessageQueueGet(targp->msgq_id, (void*)&msg_data, 0, osWaitForever);
+    osStatus_t err = osMessageQueueGet(targp->msgq_id, (void*)&msg_data, 0, targp->timeout);
     EXPECT_EQ(osOK, err);
     EXPECT_EQ(targp->expect_value, msg_data);
 
@@ -76,6 +77,7 @@ TEST_F(MessageQueueTest, osMessageQueueGet_01)
 
         arg.msgq_id = msgq_id;
         arg.expect_value = msg_data;
+        arg.timeout = 0;
         osThreadId_t id = osThreadNew(test_thread_task, &arg, NULL);
         EXPECT_TRUE(id != NULL);
         osStatus_t ret = osThreadJoin(id);
@@ -88,6 +90,7 @@ TEST_F(MessageQueueTest, osMessageQueueGet_01)
     EXPECT_EQ(osOK, err);
     return;
 }
+
 TEST_F(MessageQueueTest, osMessageQueueGet_07)
 {
     osStatus_t err;
@@ -131,6 +134,7 @@ TEST_F(MessageQueueTest, osMessageQueueGet_10)
     {
         arg.msgq_id = msgq_id;
         arg.expect_value = msg_data;
+        arg.timeout = osWaitForever;
         osThreadId_t id = osThreadNew(test_thread_task, &arg, NULL);
         EXPECT_TRUE(id != NULL);
 
@@ -149,7 +153,6 @@ TEST_F(MessageQueueTest, osMessageQueueGet_10)
     EXPECT_EQ(osOK, err);
     return;
 }
-
 TEST_F(MessageQueueTest, osMessageQueueGet_11)
 {
     osThreadId_t ids[2];
@@ -162,15 +165,15 @@ TEST_F(MessageQueueTest, osMessageQueueGet_11)
     {
         arg[0].msgq_id = msgq_id;
         arg[0].expect_value = msg_data1;
+        arg[0].timeout = osWaitForever;
         ids[0] = osThreadNew(test_thread_task, &arg[0], NULL);
         osDelay(100);
 
         arg[1].msgq_id = msgq_id;
         arg[1].expect_value = msg_data2;
+        arg[1].timeout = osWaitForever;
         ids[1] = osThreadNew(test_thread_task, &arg[1], NULL);
         osDelay(100);
-
-        osDelay(1000);
 
         err = osMessageQueuePut(msgq_id, (void*)&msg_data1, 0, osWaitForever);
         EXPECT_EQ(osOK, err);
@@ -202,20 +205,21 @@ TEST_F(MessageQueueTest, osMessageQueueGet_12)
     {
         arg[0].msgq_id = msgq_id;
         arg[0].expect_value = msg_data1;
+        arg[0].timeout = osWaitForever;
         ids[0] = osThreadNew(test_thread_task, &arg[0], NULL);
         osDelay(100);
 
         arg[1].msgq_id = msgq_id;
         arg[1].expect_value = msg_data2;
+        arg[1].timeout = osWaitForever;
         ids[1] = osThreadNew(test_thread_task, &arg[1], NULL);
         osDelay(100);
 
         arg[2].msgq_id = msgq_id;
         arg[2].expect_value = msg_data3;
+        arg[2].timeout = osWaitForever;
         ids[2] = osThreadNew(test_thread_task, &arg[2], NULL);
         osDelay(100);
-
-        osDelay(1000);
 
         err = osMessageQueuePut(msgq_id, (void*)&msg_data1, 0, osWaitForever);
         EXPECT_EQ(osOK, err);
@@ -299,6 +303,7 @@ TEST_F(MessageQueueTest, osMessageQueueGetCount_02)
     EXPECT_EQ(osOK, err);
     return;
 }
+
 TEST_F(MessageQueueTest, osMessageQueueGetCount_03)
 {
     osStatus_t err;
@@ -344,13 +349,14 @@ TEST_F(MessageQueueTest, osMessageQueuePut_01)
     EXPECT_EQ(osOK, err);
     return;
 }
+
 static void test_put_task(void* argp)
 {
     ThreadArgType* targp = (ThreadArgType*)argp;
     osMessageQueueId_t msgq_id = (osMessageQueueId_t)targp->msgq_id;
     EXPECT_TRUE(targp->msgq_id != NULL);
 
-    osStatus err = osMessageQueuePut(msgq_id, (void*)&targp->expect_value, 0, osWaitForever);
+    osStatus err = osMessageQueuePut(msgq_id, (void*)&targp->expect_value, 0, targp->timeout);
     EXPECT_EQ(osOK, err);
     return;
 }
@@ -369,6 +375,7 @@ TEST_F(MessageQueueTest, osMessageQueuePut_11)
 
         arg.msgq_id = msgq_id;
         arg.expect_value = 11;
+        arg.timeout = osWaitForever;
         id = osThreadNew(test_put_task, &arg, NULL);
 
         osDelay(100);
@@ -405,11 +412,13 @@ TEST_F(MessageQueueTest, osMessageQueuePut_12)
 
         arg[0].msgq_id = msgq_id;
         arg[0].expect_value = 11;
+        arg[0].timeout = osWaitForever;
         ids[0] = osThreadNew(test_put_task, &arg[0], NULL);
         osDelay(100);
 
         arg[1].msgq_id = msgq_id;
         arg[1].expect_value = 12;
+        arg[1].timeout = osWaitForever;
         ids[1] = osThreadNew(test_put_task, &arg[1], NULL);
         osDelay(100);
 
@@ -449,16 +458,19 @@ TEST_F(MessageQueueTest, osMessageQueuePut_13)
 
         arg[0].msgq_id = msgq_id;
         arg[0].expect_value = 11;
+        arg[0].timeout = osWaitForever;
         ids[0] = osThreadNew(test_put_task, &arg[0], NULL);
         osDelay(100);
 
         arg[1].msgq_id = msgq_id;
         arg[1].expect_value = 12;
+        arg[1].timeout = osWaitForever;
         ids[1] = osThreadNew(test_put_task, &arg[1], NULL);
         osDelay(100);
 
         arg[2].msgq_id = msgq_id;
         arg[2].expect_value = 13;
+        arg[2].timeout = osWaitForever;
         ids[2] = osThreadNew(test_put_task, &arg[2], NULL);
         osDelay(100);
 
