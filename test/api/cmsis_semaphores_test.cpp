@@ -140,12 +140,13 @@ TEST_F(SemaphoresTest, osSemaphoreAcquire_03)
         EXPECT_TRUE(id != NULL);
 
         test_acquire_arg_init(&info[0], id);
+        info[0].slp_time = 1000;
         info[1] = info[0];
 
         thr[0] = osThreadNew(test_acquire_task, (void*)&info[0], NULL);
         thr[1] = osThreadNew(test_acquire_task, (void*)&info[1], NULL);
 
-        (void)osDelay(10);
+        (void)osDelay(300);
 
         //do
         err = osSemaphoreAcquire(id, 0);
@@ -176,12 +177,13 @@ TEST_F(SemaphoresTest, osSemaphoreAcquire_04)
         EXPECT_TRUE(id != NULL);
 
         test_acquire_arg_init(&info[0], id);
+        info[0].slp_time = 1000;
         info[1] = info[0];
 
         thr[0] = osThreadNew(test_acquire_task, (void*)&info[0], NULL);
         thr[1] = osThreadNew(test_acquire_task, (void*)&info[1], NULL);
 
-        (void)osDelay(10);
+        (void)osDelay(300);
 
         //do
         err = osSemaphoreAcquire(id, 10);
@@ -464,43 +466,6 @@ TEST_F(SemaphoresTest, osSemaphoreRelease_05)
         err = osSemaphoreRelease(id);
         EXPECT_EQ(osErrorParameter, err);
 
-    }
-
-    return;
-}
-
-TEST_F(SemaphoresTest, osSemaphoreRelease_06)
-{
-    osThreadId_t thr;
-    osSemaphoreId_t id;
-    osStatus_t err;
-    TestAcquireInfoType info;
-
-    {
-        //pre
-        id = osSemaphoreNew(1, 1, NULL);
-        EXPECT_TRUE(id != NULL);
-
-        err = osSemaphoreAcquire(id, 0);
-        EXPECT_EQ(osOK, err);
-
-        test_acquire_arg_init(&info, id);
-        info.need_aquire = false;
-        info.slp_time = 0;
-
-        //do
-        thr = osThreadNew(test_acquire_task, (void*)&info, NULL);
-
-        osThreadJoin(thr);
-
-        err = osSemaphoreAcquire(id, 0);
-        EXPECT_EQ(osOK, err);
-        err = osSemaphoreRelease(id);
-        EXPECT_EQ(osOK, err);
-
-        //done
-        err = osSemaphoreDelete(id);
-        EXPECT_EQ(osOK, err);
     }
 
     return;

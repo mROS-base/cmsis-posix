@@ -215,6 +215,7 @@ TEST_F(MutexesTest, osMutexAcquire_03)
         thr[0] = osThreadNew(test_acquire_task, (void*)&info[0], NULL);
         osDelay(10);
         thr[1] = osThreadNew(test_acquire_task, (void*)&info[1], NULL);
+        osDelay(10);
 
         //do
         start_time = osKernelGetTickCount();
@@ -249,7 +250,7 @@ TEST_F(MutexesTest, osMutexAcquire_04)
 
         test_acquire_arg_init(&info[0], id);
         info[0].slp_time = 0;
-        info[0].wait_timeout = 200;
+        info[0].wait_timeout = osWaitForever;
         test_acquire_arg_init(&info[1], id);
         info[1].slp_time = 0;
         info[1].wait_timeout = osWaitForever;
@@ -261,7 +262,9 @@ TEST_F(MutexesTest, osMutexAcquire_04)
         osDelay(10);
 
         thr[1] = osThreadNew(test_acquire_task, (void*)&info[1], NULL);
-        (void)osDelay(100);
+        osDelay(10);
+
+        osDelay(1000);
 
         //done
         err = osMutexRelease(id);
