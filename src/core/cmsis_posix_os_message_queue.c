@@ -65,7 +65,6 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
 {
     osStatus_t ercd = osOK;
     PosixOsMessageQueueEntryType* entry = NULL;
-    //printf("PosixOsMessageQueueGet():enter\n");
 
     PosixOsThreadSyncLock();
     if (qh->magicno != POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO) {
@@ -76,9 +75,7 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->used);
     if (entry == NULL) {
         if (timeout != 0) {
-            //printf("PosixOsMessageQueueGet():wait start\n");
             entry = (PosixOsMessageQueueEntryType*)PosixOsThreadSyncWait(&qh->getter_waiting, timeout, NULL);
-            //printf("PosixOsMessageQueueGet():waked up\n");
         }
     }
     if (entry != NULL) {
@@ -94,7 +91,6 @@ osStatus_t PosixOsMessageQueueGet(PosixOsMessageQueueType* qh, void* msg_ptr, ui
         ercd = osErrorResource;
     }
     PosixOsThreadSyncUnlock();
-    //printf("PosixOsMessageQueueGet():exit:err=%d\n", ercd);
     return ercd;
 }
 bool_t PosixOsMessageQueueIsValid(PosixOsMessageQueueType* qh)
@@ -116,9 +112,7 @@ osStatus_t PosixOsMessageQueuePut(PosixOsMessageQueueType* qh, const void* msg_p
     entry = (PosixOsMessageQueueEntryType*)PosixOsQueueHeadRemoveFirst(&qh->free);
     if (entry == NULL) {
         if (timeout != 0) {
-            //printf("wait for putter:count=%d\n", qh->putter_waiting.count);
             entry = (PosixOsMessageQueueEntryType*)PosixOsThreadSyncWait(&qh->putter_waiting, timeout, NULL);
-            //printf("wakedup from putter:count=%d\n", qh->putter_waiting.count);
         }
     }
     if (entry != NULL) {

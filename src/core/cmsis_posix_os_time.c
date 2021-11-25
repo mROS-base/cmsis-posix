@@ -1,5 +1,4 @@
 #include "cmsis_posix_os_time.h"
-#include "cmsis_posix_os_types.h"
 
 static uint64_t posix_os_activated_time64;
 

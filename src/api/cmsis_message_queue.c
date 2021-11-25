@@ -1,7 +1,5 @@
-#include "cmsis_os.h"
 #include "cmsis_posix_os_message_queue.h"
 #include "cmsis_posix_os_thread_sync.h"
-#include <string.h>
 
 osMessageQueueId_t osMessageQueueNew(
     uint32_t 	msg_count,
@@ -71,7 +69,6 @@ osStatus_t osMessageQueueGet(
     osStatus_t err = osErrorParameter;
     osStatus_t ercd;
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
-    //printf("osMessageQueueGet:enter\n");
     if (CurrentContextIsISR() && (timeout != 0)) {
         return osErrorParameter;
     }
@@ -106,7 +103,6 @@ osStatus_t osMessageQueueGet(
     else {
         //CMSIS_IMPL_ERROR("ERROR:%s %s() %d ercd = %d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
     }
-    //printf("osMessageQueueGet:exit\n");
     return err;
 }
 
@@ -140,7 +136,6 @@ osStatus_t osMessageQueuePut(
     osStatus_t ercd;
     PosixOsMessageQueueType* qh = (PosixOsMessageQueueType*)mq_id;
 
-    //printf("osMessageQueuePut:enter\n");
     if (CurrentContextIsISR() && (timeout != 0)) {
         return osErrorParameter;
     }
@@ -175,7 +170,6 @@ osStatus_t osMessageQueuePut(
     else {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d ercd = %d\n", __FILE__, __FUNCTION__, __LINE__, ercd);
     }
-    //printf("osMessageQueuePut:exit\n");
     return err;
 }
 /*

@@ -1,4 +1,3 @@
-#include "cmsis_os.h"
 #include "cmsis_posix_os_memory.h"
 #include "cmsis_semaphores_private.h"
 #include "cmsis_posix_os_thread_sync.h"

@@ -1,7 +1,4 @@
-#include "cmsis_os.h"
-#include "cmsis_config.h"
 #include "cmsis_posix_os_memory.h"
-#include "cmsis_posix_os_types.h"
 
 typedef struct {
     osThreadFunc_t func;
@@ -135,6 +132,7 @@ osThreadId osThreadCreate(const osThreadDef_t* thread_def, void* argument)
     }
     else if (thread_def->pthread == NULL) {
         CMSIS_IMPL_ERROR("ERROR:%s %s() %d thread_def->pthread should not be NULL\n", __FILE__, __FUNCTION__, __LINE__);
+        return NULL;
     }
-    return osThreadNew((osThreadFunc_t)thread_def->pthread, argument, NULL);
+    return osThreadNew((osThreadFunc_t)thread_def->pthread, argument, &thread_def->attr);
 }

@@ -1,7 +1,7 @@
 #ifndef _CMSIS_POSIX_OS_QUEUE_H_
 #define _CMSIS_POSIX_OS_QUEUE_H_
 
-#include "cmsis_os.h"
+#include "cmsis_posix_os_common.h"
 
 typedef struct {
   uint16_t	count;

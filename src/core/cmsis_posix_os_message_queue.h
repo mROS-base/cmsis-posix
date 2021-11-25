@@ -2,8 +2,6 @@
 #define _CMSIS_POSIX_OS_MESSAGE_QUEUE_H_
 
 #include "cmsis_posix_os_queue.h"
-#include "cmsis_posix_os_types.h"
-#include "cmsis_os.h"
 
 /***********************************************
  *

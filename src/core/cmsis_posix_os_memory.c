@@ -1,6 +1,4 @@
 #include "cmsis_posix_os_memory.h"
-#include "cmsis_posix_os_types.h"
-#include <stdlib.h>
 
 void* PosixOsMemoryAlloc(uint32_t size)
 {

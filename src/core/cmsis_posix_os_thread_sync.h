@@ -2,8 +2,6 @@
 #define _CMSIS_POSIX_OS_THREAD_SYNC_H_
 
 #include "cmsis_posix_os_queue.h"
-#include "cmsis_posix_os_types.h"
-#include "cmsis_os.h"
 
 extern osStatus_t PosixOsThreadSyncSleep(uint32_t timeout);
 
