@@ -25,6 +25,7 @@ RUN apt upgrade
 RUN apt-get install -y cmake
 RUN apt-get install -y libgtest-dev lcov
 
+#TODO REMOVE HERE
 RUN useradd -ms /bin/bash tmori
 RUN mkdir /home/tmori/.ssh
 ADD id_rsa /home/tmori/.ssh/
@@ -34,10 +35,10 @@ RUN chgrp tmori /home/tmori/.ssh
 RUN chown tmori /home/tmori/.ssh/*
 RUN chgrp tmori /home/tmori/.ssh/*
 
+#TODO REMOVE HERE
 USER tmori
 WORKDIR /home/tmori
 RUN ssh -o StrictHostKeyChecking=no -T git@github.com || true
-RUN git clone git@github.com:esm-tmori/cmsis-posix.git
-WORKDIR /home/tmori/cmsis-posix/cmake-build
-RUN cmake -D debug=true ..
-RUN make
+
+#TODO for public change
+RUN git clone git@github.com:mROS-base/cmsis-posix.git
