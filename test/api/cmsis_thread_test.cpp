@@ -56,6 +56,22 @@ TEST_F(ThreadTest, osThreadNew_01)
     thread_id = osThreadNew(test_thread_task, (void*)"osThreadNew_Test01", NULL);
     EXPECT_TRUE(thread_id != NULL);
 }
+TEST_F(ThreadTest, osThreadNew_02)
+{
+    osThreadAttr_t attr;
+    test_expect_string = (char*)"osThreadNew_Test02";
+    attr.priority = osPriorityIdle;
+    thread_id = osThreadNew(test_thread_task, (void*)"osThreadNew_Test02", &attr);
+    EXPECT_TRUE(thread_id != NULL);
+}
+TEST_F(ThreadTest, osThreadNew_03)
+{
+    osThreadAttr_t attr;
+    test_expect_string = (char*)"osThreadNew_Test03";
+    attr.priority = osPriorityRealtime7;
+    thread_id = osThreadNew(test_thread_task, (void*)"osThreadNew_Test03", &attr);
+    EXPECT_TRUE(thread_id != NULL);
+}
 
 TEST_F(ThreadTest, osThreadTerminate_01)
 {
