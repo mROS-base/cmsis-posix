@@ -7,12 +7,18 @@ then
 	exit 1
 fi
 
-bash Third_Party/download.bash
 
 OPT=${1}
 if [ $# -eq 0 ]
 then
 	OPT="all"
+fi
+
+if [ ${OPT} = "clean" ]
+then
+	rm -rf ./Third_Party/FreeRTOS
+else
+	bash Third_Party/download.bash
 fi
 
 cd cmake-build
