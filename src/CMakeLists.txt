@@ -20,7 +20,8 @@ add_library(
 
 target_include_directories(
 	cmsis
-	PUBLIC ${PROJECT_SOURCE_DIR}/include
+	PRIVATE ${CMSIS_INTERFACE_DIR}
+	PRIVATE ${PROJECT_SOURCE_DIR}/include
 	PRIVATE ${PROJECT_SOURCE_DIR}/api
 	PRIVATE ${PROJECT_SOURCE_DIR}/core
 	PRIVATE ${PROJECT_SOURCE_DIR}/config
