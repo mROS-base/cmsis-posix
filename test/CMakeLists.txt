@@ -22,6 +22,8 @@ add_executable(cmsis-test
 
 target_include_directories(
 	cmsis-test 
+	PRIVATE ${CMSIS_INTERFACE_DIR}
+	PRIVATE ${CMSIS_IMPL_INTERFACE_DIR}
 	PRIVATE ${PROJECT_SOURCE_DIR}/api_test
 	PRIVATE ${PROJECT_SOURCE_DIR}/fw
 	PRIVATE ${GTEST_INCLUDE_DIRS}
