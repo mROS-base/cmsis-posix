@@ -23,34 +23,34 @@
 
 #define POSIX_OSMESSAGE_QUEUE_HEAD_MAGICNO		0xDEAFBEAD
 typedef struct {
-	uint16_t			prealloc_num;
-	uint16_t			entry_size;
-	uint32_t			magicno;
-	PosixOsQueueHeadType	used;
-	PosixOsQueueHeadType	free;
-	PosixOsQueueHeadType	getter_waiting;
-	PosixOsQueueHeadType	putter_waiting;
+  uint16_t			prealloc_num;
+  uint16_t			entry_size;
+  uint32_t			magicno;
+  PosixOsQueueHeadType	used;
+  PosixOsQueueHeadType	free;
+  PosixOsQueueHeadType	getter_waiting;
+  PosixOsQueueHeadType	putter_waiting;
 } PosixOsMessageQueueType;
 
 
 typedef struct {
-	CMSIS_IMPL_QUEUE						queue;
-	/*
-	 * Priority
-	 *
-	 *  Highest  UINT16_MAX
-	 *  Lowest   0
-	 */
-	uint16_t					prio;
-	void* data;
+  CMSIS_IMPL_QUEUE						queue;
+  /*
+   * Priority
+   *
+   *  Highest  UINT16_MAX
+   *  Lowest   0
+   */
+  uint16_t					prio;
+  void* data;
 } PosixOsMessageQueueEntryType;
 
 
 typedef struct {
-	uint16_t 					prealloc_num;
-	uint16_t 					entry_size;
-	PosixOsMessageQueueEntryType* control_datap;
-	void* entries_datap;
+  uint16_t 					prealloc_num;
+  uint16_t 					entry_size;
+  PosixOsMessageQueueEntryType* control_datap;
+  void* entries_datap;
 } PosixOsMessageQueueConfigType;
 extern PosixOsMessageQueueType* PosixOsMessageQueueCreate(PosixOsMessageQueueConfigType* config);
 extern osStatus_t PosixOsMessageQueueDelete(PosixOsMessageQueueType* qh);
